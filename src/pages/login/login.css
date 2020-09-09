@@ -1,0 +1,21 @@
+#forma {
+    border: 1px solid;
+    width: 700px;
+    height: 700px;
+    border-radius: 50px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    margin: 120px auto;
+}
+
+.forms_blocks {
+    margin: 200px 170px;
+}
+
+.form_block {
+    margin: 20px;
+}
+
+.button_form {
+    background-color: #006ff8 !important;
+    color: #fff !important;
+}

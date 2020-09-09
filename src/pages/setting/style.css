@@ -1,0 +1,59 @@
+#dropZone {    
+    color: #555;
+    font-size: 18px;
+    text-align: center;    
+    
+    width: 400px;
+    padding: 50px 0;
+    margin: 50px auto;
+    
+    background: #eee;
+    border: 1px solid #ccc;
+    
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#dropZone.hover {
+    background: #ddd;
+    border-color: #aaa;
+}
+
+#dropZone.error {
+    background: #faa;
+    border-color: #f00;
+}
+
+#dropZone.drop {
+    background: #afa;
+    border-color: #0f0;
+}
+
+.button_downloaded_file {
+    display: block !important;
+    margin: 50px auto !important;
+    background-color: #156df1 !important;
+    color: #fff !important;
+}
+
+.block_downloaded {
+    margin: 70px auto !important;
+    text-align: center;
+    border: 2px solid #156df1;
+    width: 700px;
+    padding: 10px;
+}
+
+.downloadedButton {
+    padding: 10px;
+    background-color: #156df1;
+    color: #fff;
+}
+
+.downloaded_ref {
+    font-size: 16px;
+    float: right;
+    margin: 10px 20px 0 0;
+}

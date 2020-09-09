@@ -1,0 +1,24 @@
+#content {
+    margin-top: 50px;
+}
+
+.block {
+    width: 30%;
+    height: 200px;
+    background: rgb(9,192,231);
+    background: linear-gradient(-135deg, rgba(9,192,231,1) 0%, rgba(22,122,241,1) 100%);
+    float: left;
+    margin: 20px 150px;
+    text-align: center;
+    color: #fff;
+    border-radius: 10px;
+}
+
+.block h2 {
+    padding-bottom: 60px;
+    color: #fff;
+}
+
+.block b {
+    color: #fff;
+}

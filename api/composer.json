@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phpoffice/phpspreadsheet": "^1.11",
+        "rackspace/php-opencloud": "dev-master"
+    }
+}
