@@ -57,18 +57,23 @@ foreach ($sheet->getRowIterator() as $row) {
                 $arr_index = 5;
             }
 
+            // else if ( $arr_index == 5){
+            //     $arr_item["returned_whosaler"] = $value;
+            //     $arr_index = 6;
+            // }
+
+            // else if ( $arr_index == 6){
+            //     $arr_item["returned_from_client"] = $value;
+            //     $arr_index = 7;
+            // }
+
             else if ( $arr_index == 5){
-                $arr_item["returned_whosaler"] = $value;
+                $arr_item["order"] = $value;
                 $arr_index = 6;
             }
 
             else if ( $arr_index == 6){
-                $arr_item["returned_from_client"] = $value;
-                $arr_index = 7;
-            }
-
-            else if ( $arr_index == 7){
-                $arr_item["order"] = $value;
+                $arr_item["ostatok"] = $value;
                 $arr_index = 0;
                 $ready = 1;
             }
@@ -126,18 +131,78 @@ function group_cell($arr) {
         $prodano = $row['prodano'];
         $wb_art = $row['wb_art'];
         $category = $row['category'];
-        $returned_whosaler = $row['returned_whosaler'];
-        $returned_from_client = $row['returned_from_client'];
         $order = $row['order'];
-        $url = 'https://www.wildberries.ru/catalog/'.$wb_art.'/detail.aspx';
-        $file = file_get_contents($url);
+        $ostatok = $row['ostatok'];
+       
+        
+       $pp = 0;
+
+       
        
     
         if (!@array_key_exists($id, $aggregated)) {
-            $wb_retail = parser_wb_retailprice($file);
-            $wb_weigth = parser_wb_weigth($file);
-            if(!empty($wb_retail) && !empty($wb_weigth)) {
-                $wb_price_of_gramm = $wb_retail/$wb_weigth;
+            $wb_vstavka = '';
+       $wb_metall = '';
+       $wb_no_sizes = '';
+       $wb_all_sizes = '';
+       $desc = '';
+       $wb_reiting = '';
+       $wb_retail = '';
+       $weigth = '';
+       
+            $url = 'https://www.wildberries.ru/catalog/'.$wb_art.'/detail.aspx';
+            $file = file_get_contents($url);
+       $doc = phpQuery::newDocument($file);
+    
+    $wb_retail = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.final-cost')->text()));
+    
+    $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.params .pp:contains("Минимальный вес") span:eq(3)')->text())));
+    
+    $wb_vstavka = json_fix_cyr($doc->find('.params .pp:contains("Вставка") span:eq(3)')->text());
+        if(empty($wb_vstavka)) {
+            $wb_vstavka = 'Нет вставки';
+        }
+    
+        $wb_metall = json_fix_cyr($doc->find('.params .pp:contains("Состав ювелирного изделия") span:eq(3)')->text());
+        if(empty($wb_metall)) {
+            $wb_metall = 'Не указан металл';
+        }
+    
+        if(strpos($wb_metall, 'золото')) {
+            $wb_metall = 'золото';
+        }
+    
+        $wb_no_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-sold-out span')->text()))); 
+        $wb_no_sizes = array_diff($wb_no_sizes, array(''));
+        if(count($wb_no_sizes) == 0) {
+            $wb_no_sizes = "Все в наличии";
+        } else if($wb_no_sizes[0] == 0) {
+            $wb_no_sizes = "У данного изделия нет размеров";
+        } else {
+            $wb_no_sizes = $wb_no_sizes;
+        }
+    
+        $wb_reiting = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.stars-line-lg')->text()));
+        if(count($wb_reiting) == 0) {
+            $wb_reiting = "Нет рейтинга";
+        }
+    
+        $desc =  json_fix_cyr($doc->find('.description-text p')->text());
+        if(count($desc) == 0) {
+            $desc = "Нет описания";
+        } 
+
+        $wb_all_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-size span')->text()))); 
+        $wb_all_sizes = array_diff($wb_all_sizes, array(''));
+     if($wb_all_sizes[0] == 0) {
+        $wb_all_sizes = "У данного изделия нет размеров";
+    }
+
+       if($postavleno > 0) {
+           $pp = trim(round($prodano/$postavleno, 2)*100);
+       }
+            if(!empty($wb_retail) && !empty($weigth)) {
+                $wb_price_of_gramm = $wb_retail/$weigth;
             } 
             
             if(empty($wb_retail)) {
@@ -149,32 +214,35 @@ function group_cell($arr) {
                 'name' => trim($id),
                'postavleno' => trim($postavleno),
                'prodano' => trim($prodano),
-               'returned_whosaler' => trim($returned_whosaler),
-               'returned_from_client' => trim($returned_from_client),
                'order' => trim($order),
-               'pp' => trim(round($prodano/$postavleno, 2)*100),
+               'pp' => $pp,
                'wb_art' => trim($wb_art),
                'category' => trim($category),
                'wb_retail' => trim($wb_retail),
-               'wb_weigth' => trim($wb_weigth),
+               'wb_weigth' => trim($weigth),
                "wb_price_of_gramm" => trim(ceil($wb_price_of_gramm)),
-               'wb_vstavka' => trim(parser_wb_vstavka($file)),
-               "wb_metall" => trim(parser_wb_metall($file)),
-               "wb_sizes" =>parser_wb_no_sizes($file),
-               "wb_all_sizes" =>parser_wb_all_sizes($file),
-               "desc" => parser_wb_desc($file),
-               "wb_reiting" => parser_wb_reiting($file)
+               'wb_vstavka' => trim($wb_vstavka),
+               "wb_metall" => trim($wb_metall),
+               "wb_no_sizes" => $wb_no_sizes,
+               "wb_all_sizes" => $wb_all_sizes,
+               "desc" => trim($desc),
+               "ostatok" => trim($ostatok),
+               "wb_reiting" => trim($wb_reiting)
             ];
     
             continue;
         }
 
+        $aggregated[$id]['ostatok'] += $ostatok;
         $aggregated[$id]['order'] += $order;
-        $aggregated[$id]['returned_whosaler'] += $returned_whosaler;
-        $aggregated[$id]['returned_from_client'] += $returned_from_client;
         $aggregated[$id]['postavleno'] += $postavleno;
         $aggregated[$id]['prodano'] += $prodano;
-        $aggregated[$id]['pp'] = trim(round($aggregated[$id]['prodano']/$aggregated[$id]['postavleno'], 2)*100);
+        $aggregated[$id]['pp'] = 0;
+
+        if($aggregated[$id]['postavleno'] > 0 )
+ {
+    $aggregated[$id]['pp'] = trim(round($aggregated[$id]['prodano']/$aggregated[$id]['postavleno'], 2)*100);
+ }        
     }
 
     
@@ -232,85 +300,128 @@ function json_fix_cyr($json_str) {
     return $json_str;
 }
 
+// function parser_wb($file) {
 
-function parser_wb_retailprice($file) {
-$doc = phpQuery::newDocument($file);
-$price_wb = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.final-cost')->text()));
-return $price_wb;
-}
-
-function parser_wb_weigth($file) {
-    $doc = phpQuery::newDocument($file);
-    $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.params .pp:contains("Минимальный вес") span:eq(3)')->text())));
+//     $doc = phpQuery::newDocument($file);
     
-    return $weigth;
-}
+//     $wb_retail = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.final-cost')->text()));
+    
+//     $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.params .pp:contains("Минимальный вес") span:eq(3)')->text())));
+    
+//     $wb_vstavka = json_fix_cyr($doc->find('.params .pp:contains("Вставка") span:eq(3)')->text());
+//         if(empty($wb_vstavka)) {
+//             $wb_vstavka = 'Нет вставки';
+//         }
+    
+//         $wb_metall = json_fix_cyr($doc->find('.params .pp:contains("Состав ювелирного изделия") span:eq(3)')->text());
+//         if(empty($wb_metall)) {
+//             $wb_metall = 'Не указан металл';
+//         }
+    
+//         if(strpos($wb_metall, 'золото')) {
+//             $wb_metall = 'золото';
+//         }
+    
+//         $wb_no_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-sold-out span')->text()))); 
+//         $wb_no_sizes = array_diff($wb_no_sizes, array(''));
+//         if(count($wb_no_sizes) == 0) {
+//             $wb_no_sizes = "Все в наличии";
+//         } else if($wb_no_sizes[0] == 0) {
+//             $wb_no_sizes = "У данного изделия нет размеров";
+//         }
+    
+//         $wb_reiting = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.stars-line-lg')->text()));
+//         if(count($wb_reiting) == 0) {
+//             $wb_reiting = "Нет рейтинга";
+//         }
+    
+//         $desc =  json_fix_cyr($doc->find('.description-text p')->text());
+//         if(count($desc) == 0) {
+//             $desc = "Нет описания";
+//         } 
+        
+//     }
 
-function parser_wb_vstavka($file) {
-    $doc = phpQuery::newDocument($file);
-    $vstavka = json_fix_cyr($doc->find('.params .pp:contains("Вставка") span:eq(3)')->text());
-    if(empty($vstavka)) {
-        $vstavka = 'Нет вставки';
-    }
-    return $vstavka;
-}
+// function parser_wb_retailprice($file) {
+// $doc = phpQuery::newDocument($file);
+// $price_wb = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.final-cost')->text()));
+// return $price_wb;
+// }
+
+// function parser_wb_weigth($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.params .pp:contains("Минимальный вес") span:eq(3)')->text())));
+    
+//     return $weigth;
+// }
+
+// function parser_wb_vstavka($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $vstavka = json_fix_cyr($doc->find('.params .pp:contains("Вставка") span:eq(3)')->text());
+//     if(empty($vstavka)) {
+//         $vstavka = 'Нет вставки';
+//     }
+//     return $vstavka;
+// }
 
 
-function parser_wb_metall($file) {
-    $doc = phpQuery::newDocument($file);
-    $metall = json_fix_cyr($doc->find('.params .pp:contains("Состав ювелирного изделия") span:eq(3)')->text());
-    if(empty($metall)) {
-        $metall = 'Не указан металл';
-    }
+// function parser_wb_metall($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $metall = json_fix_cyr($doc->find('.params .pp:contains("Состав ювелирного изделия") span:eq(3)')->text());
+//     if(empty($metall)) {
+//         $metall = 'Не указан металл';
+//     }
 
-    if(strpos($metall, 'золото')) {
-        $metall = 'золото';
-    }
-    return $metall;
-}
-
-
-
-function parser_wb_no_sizes($file) {
-    $doc = phpQuery::newDocument($file);
-    $sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-sold-out span')->text()))); 
-    $sizes = array_diff($sizes, array(''));
-    if(count($sizes) == 0) {
-        $sizes = "Все в наличии";
-    } else if($sizes[0] == 0) {
-        $sizes = "У данного изделия нет размеров";
-    }
-    return $sizes;
-}
-
-function parser_wb_reiting($file) {
-    $doc = phpQuery::newDocument($file);
-    $reiting_wb = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.stars-line-lg')->text()));
-    if(count($reiting_wb) == 0) {
-        $reiting_wb = "Нет рейтинга";
-    }
-    return $reiting_wb;
-}
+//     if(strpos($metall, 'золото')) {
+//         $metall = 'золото';
+//     }
+//     return $metall;
+// }
 
 
-function parser_wb_all_sizes($file) {
-    $doc = phpQuery::newDocument($file);
-    $sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-size span')->text()))); 
-    $sizes = array_diff($sizes, array(''));
-     if($sizes[0] == 0) {
-        $sizes = "У данного изделия нет размеров";
-    }
-    return $sizes;
-}
 
-function parser_wb_desc($file) {
-    $doc = phpQuery::newDocument($file);
-    $desc =  json_fix_cyr($doc->find('.description-text p')->text());
-    if(count($desc) == 0) {
-        $desc = "Нет описания";
-    } 
-    return $desc;
-}
+// function parser_wb_no_sizes($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-sold-out span')->text()))); 
+//     $sizes = array_diff($sizes, array(''));
+//     if(count($sizes) == 0) {
+//         $sizes = "Все в наличии";
+//     } else if($sizes[0] == 0) {
+//         $sizes = "У данного изделия нет размеров";
+//     }
+//     return $sizes;
+// }
+
+// function parser_wb_reiting($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $reiting_wb = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.stars-line-lg')->text()));
+//     if(count($reiting_wb) == 0) {
+//         $reiting_wb = "Нет рейтинга";
+//     }
+//     return $reiting_wb;
+// }
+
+
+// function parser_wb_all_sizes($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-size span')->text()))); 
+//     $sizes = array_diff($sizes, array(''));
+//      if($sizes[0] == 0) {
+//         $sizes = "У данного изделия нет размеров";
+//     }
+//     return $sizes;
+// }
+
+// function parser_wb_desc($file) {
+//     $doc = phpQuery::newDocument($file);
+//     $desc =  json_fix_cyr($doc->find('.description-text p')->text());
+//     if(count($desc) == 0) {
+//         $desc = "Нет описания";
+//     } 
+//     return $desc;
+// }
+
+
 
 
 ?>

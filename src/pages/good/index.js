@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import DatePicker from "react-date-picker";
-import {getNameOfCategory} from "../../utils/func.utils.js"
+import {getNameOfCategory, getStatus} from "../../utils/func.utils.js"
 
 const axios = require("axios");
 let config = require("../../config/");
@@ -32,6 +32,10 @@ export class Good extends React.Component {
       hypothesis: [],
       status_backet_good: 0,
       waitinglist: [],
+      itogoShipment: 0,
+      itogoSales: 0,
+      itogoVozvrati: 0,
+      orders: []
     };
   }
 
@@ -122,10 +126,25 @@ export class Good extends React.Component {
         },
       })
       .then(function (response) {
-        console.log(response);
         self.setState({
           hypothesis: response.data,
         })(self.checkBasket());
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      await axios
+      .get(url_ga_server + "order/order.php", {
+        params: {
+          type: "item_order_name",
+          name: this.state.good_name
+        },
+      })
+      .then(function (response) {
+        console.log(response)
+        self.setState({
+          orders: response.data,
+        });
       })
       .catch(function (error) {
         console.log(error);
@@ -342,7 +361,6 @@ export class Good extends React.Component {
   }
 
   render() {
-    console.log(this.state.img);
     return (
       <div>
         <div id="content">
@@ -373,17 +391,6 @@ export class Good extends React.Component {
                 Продано: <b>{this.state.good["prodano"]} шт.</b>
               </p>
               <p>
-                Вернули поставщику:{" "}
-                <b>{this.state.good["returned_whosaler"]} шт.</b>
-              </p>
-              <p>
-                Вернули клиенты:{" "}
-                <b>{this.state.good["returned_from_client"]} шт.</b>
-              </p>
-              <p>
-                Заказано: <b>{this.state.good["order"]} шт.</b>
-              </p>
-              <p>
                 Процент выкупа:{" "}
                 <b>
                   {this.state.good["order"] == 0
@@ -401,6 +408,23 @@ export class Good extends React.Component {
                 <b>
                   {this.state.good["pp"] == "NaN" ? 0 : this.state.good["pp"]}%
                 </b>
+              </p>
+              
+              {/* <p>
+                Вернули поставщику:{" "}
+                <b>{this.state.good["returned_whosaler"]} шт.</b>
+              </p>
+              <p>
+                Вернули клиенты:{" "}
+                <b>{this.state.good["returned_from_client"]} шт.</b>
+              </p> */}
+              <p>
+                Заказано: <b>{this.state.good["order"]} шт.</b>
+              </p>
+            
+              <p>
+                Остаток:{" "}
+                <b>{this.state.good["ostatok"]} шт.</b>
               </p>
               <p>
                 Категория: <b>{this.state.good["category"]}</b>
@@ -428,7 +452,7 @@ export class Good extends React.Component {
                 Все размеры: <b>{this.state.good["wb_all_sizes"]}</b>
               </p>
               <p>
-                Отсутствующие размеры: <b>{this.state.good["wb_sizes"]}</b>
+                Отсутствующие размеры: <b>{this.state.good["wb_no_sizes"]}</b>
               </p>
               <p>
                 Рейтинг: <b>{0 || this.state.good["wb_reiting"]}</b>
@@ -506,6 +530,7 @@ export class Good extends React.Component {
                       {this.state.shipment
                         .map((item) => parseInt(item.count))
                         .reduce((prev, curr) => prev + curr || 0)}{" "}
+                      
                     </td>
                   </tr>
                 ) : (
@@ -649,6 +674,40 @@ export class Good extends React.Component {
             </div>
           </div>
         </div>
+
+          <div className="good_stats">
+            <div className="good_stat">
+              <b>Заказы</b>
+              <table border="1">
+                <tr>
+                  <th>Номер заказа</th>
+                  <th>Заказано</th>
+                  <th>Дата одобрения заказа</th>
+                  <th>Статус</th>
+                </tr>
+                {this.state.orders.length > 0 ? (
+                  this.state.orders.map((item, index) => (
+                    <tr key={index}>
+                      <td>
+                      <Link
+                        to={`/order/${item["number_order"]}`}
+                        target="_blank"
+                        className="link_hypothesis"
+                      >
+                        {item["number_order"]}
+                      </Link>
+                    </td>
+                      <td>{item["order_count"]}</td>
+                      <td>{item["date"] || 'Не отправлен'}</td>
+                      <td>{getStatus(item["status_order"])}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <h1>Нет записей</h1>
+                )}
+              </table>
+            </div>
+          </div>
 
         <div className="clear">
           <div className="good_state_setting">

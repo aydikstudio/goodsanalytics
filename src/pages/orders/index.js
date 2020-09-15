@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import {getStatus} from "../../utils/func.utils.js"
+
 const axios = require("axios");
 let config = require("../../config/");
 let url_ga_server = config.default.url_ga_server;
+
 
 
 export class Orders extends React.Component {
@@ -24,7 +27,10 @@ export class Orders extends React.Component {
     .then(function (response) {
       let data = response.data;
       self.setState({
-        orders: data
+        orders: data.sort(
+          (a, b) =>
+            a > b ? 1 : -1
+        ),
       })
     })
     .catch(function (error) {
@@ -33,18 +39,7 @@ export class Orders extends React.Component {
 
   }
 
-  getStatus(val) {
-      if(val == 0) {
-          return 'На модерации'
-      } else if(val == 1) {
-          return 'Одобрено'
-      } else if(val == 2) {
-        return 'Отклонено'
-    } else if(val == 3) {
-      return 'Редактируется'
-  }
-    
-  }
+
 
   render() {
     return (
@@ -61,7 +56,7 @@ export class Orders extends React.Component {
                       {item['user_login']}
                     </div>
                     <div className="shipment_item_name">
-                     {this.getStatus(item['status_order'])}
+                     {getStatus(item['status_order'])}
                      {item['status_order'] == 1 ? ' '+item['date'] : ''}
                     </div>
                     <Link

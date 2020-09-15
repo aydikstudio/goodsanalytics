@@ -15,7 +15,18 @@ if(isset($_GET)) {
     if(isset($_GET['type'])) {
 
     $type = $_GET['type'];
+    
+    if($type == "item_order_name") {
+        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' ORDER BY `order_id` DESC";
+        $res = mysqli_query($mysqli, $query);
+        $data = array();
+        
 
+        while ($result =  mysqli_fetch_assoc($res)) {
+           $data[] = $result;
+        }
+        echo json_encode($data);
+    }
 
     if($type == "item_order") {
         $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item'];
@@ -43,7 +54,7 @@ if(isset($_GET)) {
     }
 
     if($type == "all_orders") {
-        $query = "SELECT DISTINCT `number_order`, `user_login`, `status_order`, `date` FROM `order`";
+        $query = "SELECT DISTINCT `number_order`, `user_login`, `status_order`, `date` FROM `order` ORDER BY 'status_order' DESC";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         

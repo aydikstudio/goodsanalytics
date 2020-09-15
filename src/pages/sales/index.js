@@ -352,6 +352,26 @@ export class Sales extends React.Component {
         });
       }
     }
+
+    if (name == "Остаток") {
+      if (this.state.sortByOstatok) {
+        this.state.filteredList.sort(function (a, b) {
+          return b["ostatok"] - a["ostatok"];
+        });
+        this.setState({
+          sortByOstatok: !this.state.sortByOstatok,
+        });
+      } else {
+        this.state.filteredList.sort(function (a, b) {
+          return a["ostatok"] - b["ostatok"];
+        });
+        this.setState({
+          sortByOstatok: !this.state.sortByOstatok,
+        });
+      }
+    }
+
+
   }
 
   render() {
@@ -526,6 +546,9 @@ export class Sales extends React.Component {
                 <th name="sortByPP" onClick={(e) => this.sortOfGoods(e)}>
                   Процент продаваемости
                 </th>
+                <th name="sortByOstatok" onClick={(e) => this.sortOfGoods(e)}>
+                  Остаток
+                </th>
                 <th name="sortByNoSizes" onClick={(e) => this.sortOfGoods(e)}>
                   Отсутствующие размеры
                 </th>
@@ -557,10 +580,11 @@ export class Sales extends React.Component {
                   <td>{item["postavleno"]} шт.</td>
                   <td>{item["prodano"]} шт.</td>
                   <td>{item["pp"]} %</td>
+                  <td>{item["ostatok"]} шт.</td>
                   <td>
-                    {typeof item["wb_sizes"] == "array"
-                      ? item["wb_sizes"].map((item, index) => item + " ")
-                      : item["wb_sizes"]}
+                    {typeof item["wb_no_sizes"] == "array"
+                      ? item["wb_no_sizes"].map((item, index) => item + " ")
+                      : item["wb_no_sizes"]}
                   </td>
                 </tr>
               )): <h1>Нет записей</h1>}

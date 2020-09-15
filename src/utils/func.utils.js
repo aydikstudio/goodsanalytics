@@ -19,3 +19,16 @@ export function getNameOfCategory(value) {
         return 'Нет';
     }
 }
+
+export function getStatus(val) {
+    if(val == 0) {
+        return 'На модерации'
+    } else if(val == 1) {
+        return 'Одобрено'
+    } else if(val == 2) {
+      return 'Отклонено'
+  } else if(val == 3) {
+    return 'Редактируется'
+}
+  
+}

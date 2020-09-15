@@ -66,6 +66,11 @@ foreach ($sheet->getRowIterator() as $row) {
 
             else if ( $arr_index == 6){
                 $arr_item["category"] = $value;
+                $arr_index = 7;
+            }
+
+            else if ( $arr_index == 7){
+                $arr_item["ostatok"] = $value;
                 $arr_index = 0;
                 $ready = 1;
             }
@@ -125,6 +130,7 @@ function group_cell($arr) {
         $category = $row['category'];
         $returned_whosaler = $row["returned_whosaler"];
         $returned_from_client = $row["returned_from_client"];
+        $ostatok = $row["ostatok"];
        
     
         if (!@array_key_exists($id, $aggregated)) {
@@ -150,6 +156,7 @@ function group_cell($arr) {
                'category' => trim($category),
                'wb_retail' => trim($wb_retail),
                'wb_weigth' => trim($wb_weigth),
+               'ostatok' => trim($ostatok),
                "wb_price_of_gramm" => trim(ceil($wb_price_of_gramm)),
                'wb_vstavka' => trim(parser_wb_vstavka($wb_art)),
                "wb_metall" => trim(parser_wb_metall($wb_art)),
@@ -167,6 +174,7 @@ function group_cell($arr) {
         $aggregated[$id]['returned_from_client'] += $returned_from_client;
         $aggregated[$id]['postavleno'] += $postavleno;
         $aggregated[$id]['prodano'] += $prodano;
+        $aggregated[$id]['ostatok'] += $ostatok;
         $aggregated[$id]['pp'] = trim(round($aggregated[$id]['prodano']/$aggregated[$id]['postavleno'], 2)*100);
     }
 
