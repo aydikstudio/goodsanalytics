@@ -4,7 +4,7 @@ export function getNameOfCategory(value) {
     value == "Ювелирные кольца" ||
     value == "Ювелирные колье" ||
     value == "Ювелирные подвески" ||
-    value == 'semenova_elena'
+    value == 'silaeva_natalia'
   ) {
     return "Силаева Наталья";
   } else if (
@@ -12,7 +12,7 @@ export function getNameOfCategory(value) {
     value == "Ювелирные цепочки" ||
     value == "Ювелирные запонки" ||
     value == "Ювелирные зажимы" ||
-    value == 'silaeva_natalia'
+    value == 'semenova_elena'
   ) {
     return "Семенова Елена";
   } else if (
