@@ -105,7 +105,7 @@ if(isset($_POST)) {
             mysqli_query($mysqli, $query_add);
         }
 
-        $subject = 'Заказ №'.$number_order.'на модерации. Проверьте';
+        $subject = 'Заказ №'.$order_id.'на модерации. Проверьте';
 
         $message = '
         <html>
@@ -113,7 +113,7 @@ if(isset($_POST)) {
         <title>Заказ на модерации</title>
         </head>
         <body>
-        <p>Заказ №'.$number_order.'на модерации. Проверьте</p>
+        <p>Заказ №'.$order_id.'на модерации. Проверьте</p>
         </body>
         </html>
         ';
@@ -122,6 +122,7 @@ if(isset($_POST)) {
         $headers .= "Content-type: text/html; charset=utf-8 \r\n";
 
         mail('kbaliev55@gmail.com', $subject, $message, $headers);
+        mail('aydikstudio@gmail.com', $subject, $message, $headers);
         echo 1;
     }
 

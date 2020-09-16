@@ -408,6 +408,24 @@ export class Choosed extends React.Component {
       }
     }
 
+    if (name == "Остаток") {
+      if (this.state.sortByOstatok) {
+        this.state.filteredList.sort(function (a, b) {
+          return b["ostatok"] - a["ostatok"];
+        });
+        this.setState({
+          sortByOstatok: !this.state.sortByOstatok,
+        });
+      } else {
+        this.state.filteredList.sort(function (a, b) {
+          return a["ostatok"] - b["ostatok"];
+        });
+        this.setState({
+          sortByOstatok: !this.state.sortByOstatok,
+        });
+      }
+    }
+
     if (name == "В поставке") {
       if (this.state.sortByWillPostavlkaCount) {
         this.state.filteredList.sort(function (a, b) {
@@ -605,6 +623,9 @@ export class Choosed extends React.Component {
                 <th name="sortByPP" onClick={(e) => this.sortOfGoods(e)}>
                   Процент продаваемости
                 </th>
+                <th name="sortByOstatok" onClick={(e) => this.sortOfGoods(e)}>
+                  Остаток
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -629,6 +650,7 @@ export class Choosed extends React.Component {
                   <td>{item["prodano"]} шт.</td>
                   <td>{item["will_postavlka_count"]}</td>
                   <td>{item["pp"]} %</td>
+                  <td>{item["ostatok"]} шт.</td>
                 </tr>
               )) : <h1>Нет записей</h1>}
             </tbody>

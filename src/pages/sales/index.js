@@ -9,7 +9,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import Modal_Export from "../../components/modal_export";
-import {getNameOfCategory} from "../../utils/func.utils.js"
+import { getNameOfCategory, getNameOManager } from "../../utils/func.utils.js";
 
 let config = require("../../config/");
 let url_ga_server = config.default.url_ga_server;
@@ -36,10 +36,11 @@ export class Sales extends React.Component {
       pp_max: 0,
       price_of_gram_min: 0,
       price_of_gram_max: 0,
+      itogo_postavleno: 0,
+      itogo_prodano: 0,
+      itogo_ostatok: 0,
+      users: ['aliev_aydemir', 'semenova_elena', 'silaeva_natalia']
     };
-
-
-
 
     this.checkIsNotGoods = this.checkIsNotGoods.bind(this);
     this.checkIsNotSizes = this.checkIsNotSizes.bind(this);
@@ -48,7 +49,6 @@ export class Sales extends React.Component {
     this.handleChangeCount = this.handleChangeCount.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.filterList = this.filterList.bind(this);
-
   }
 
   async componentDidMount() {
@@ -110,11 +110,12 @@ export class Sales extends React.Component {
 
   delModeldFromListOfDeletedModels(arr_del, arr_all) {
     let arr = [];
-     arr_all.map((obj) => {
+    arr_all.map((obj) => {
       if (!arr_del.some((item) => item["name"] == obj["name"])) {
         arr = [...arr, arr_all.find((item) => item["name"] === obj["name"])];
       }
     });
+    this.countByEffective(arr);
     return arr;
   }
 
@@ -168,8 +169,25 @@ export class Sales extends React.Component {
     });
   }
 
+  countByEffective(new_goods) {
+    this.setState({
+    itogo_postavleno: new_goods
+      .map((item) => parseInt(item["postavleno"]))
+      .reduce((prev, curr) => prev + curr || 0),
+    itogo_prodano: new_goods
+      .map((item) => parseInt(item["prodano"]))
+      .reduce((prev, curr) => prev + curr || 0),
+    itogo_ostatok: new_goods
+      .map((item) => parseInt(item["ostatok"]))
+      .reduce((prev, curr) => prev + curr || 0),
+    })
+  }
+
   submitFilter() {
-    let new_goods = this.delModeldFromListOfDeletedModels(this.state.delected_model, this.state.data_all_goods);
+    let new_goods = this.delModeldFromListOfDeletedModels(
+      this.state.delected_model,
+      this.state.data_all_goods
+    );
 
     if (this.state.isNotGoods) {
       new_goods = new_goods.filter(
@@ -187,10 +205,14 @@ export class Sales extends React.Component {
       new_goods = new_goods.filter((item) => item["wb_sizes"] instanceof Array);
     }
 
-    if (this.state.category !== "vse") {
+    if (this.state.category !== "vse" && !this.state.users.some(item => item == this.state.category)) {
       new_goods = new_goods.filter(
         (item) => item["category"] == this.state.category
       );
+    } 
+
+    if(this.state.category !== "vse" && this.state.users.some(item => item == this.state.category)) {
+       new_goods = getNameOManager(this.state.category, new_goods)
     }
 
     if (this.state.stone !== "vse") {
@@ -228,6 +250,15 @@ export class Sales extends React.Component {
     this.setState({
       goods: new_goods.filter((item) => !item["date"]),
       filteredList: new_goods.filter((item) => !item["date"]),
+      itogo_postavleno: new_goods
+        .map((item) => parseInt(item["postavleno"]))
+        .reduce((prev, curr) => prev + curr || 0),
+      itogo_prodano: new_goods
+        .map((item) => parseInt(item["prodano"]))
+        .reduce((prev, curr) => prev + curr || 0),
+      itogo_ostatok: new_goods
+        .map((item) => parseInt(item["ostatok"]))
+        .reduce((prev, curr) => prev + curr || 0),
     });
   }
 
@@ -236,7 +267,9 @@ export class Sales extends React.Component {
     if (this.state.goods.length > 0) {
       filteredList = this.state.goods.filter(function (item) {
         return (
-          item["name"].toLowerCase().search(e.target.value.trim().toLowerCase()) !== -1
+          item["name"]
+            .toLowerCase()
+            .search(e.target.value.trim().toLowerCase()) !== -1
         );
       });
 
@@ -250,7 +283,9 @@ export class Sales extends React.Component {
         });
       }
 
-      this.setState({ filteredList });
+      this.setState({
+        filteredList,
+      });
     } else {
       this.submitFilter();
     }
@@ -259,7 +294,6 @@ export class Sales extends React.Component {
   sortOfGoods(event) {
     const target = event.target;
     const name = target.innerText;
-
 
     if (name == "Артикул") {
       if (this.state.sortByName) {
@@ -315,8 +349,6 @@ export class Sales extends React.Component {
       }
     }
 
-
-
     if (name == "Поставлено") {
       if (this.state.sortByPostavleno) {
         this.state.filteredList.sort(function (a, b) {
@@ -370,8 +402,6 @@ export class Sales extends React.Component {
         });
       }
     }
-
-
   }
 
   render() {
@@ -380,163 +410,174 @@ export class Sales extends React.Component {
         <h1>Продажи</h1>
         <b className="actual_date">Актуально на {this.state.date}</b>
         <div className="sort">
-            <div className="checkboxes">
-              <div className="block_form_checkbox">
-                <Checkbox
-                  name="isGoods"
-                  type="checkbox"
-                  checked={this.state.isGoods}
-                  onChange={this.checkIsGoods}
-                />
-                в наличии
-              </div>
-  
-              <div className="block_form_checkbox">
-                <Checkbox
-                  name="isNotGoods"
-                  type="checkbox"
-                  checked={this.state.isNotGoods}
-                  onChange={this.checkIsNotGoods}
-                />
-                нет в наличии
-              </div>
-  
-              <div className="block_form_checkbox">
-                <Checkbox
-                  name="isNotSizes"
-                  type="checkbox"
-                  checked={this.state.isNotSizes}
-                  onChange={this.checkIsNotSizes}
-                />
-                нет размеров
-              </div>
+          <div className="checkboxes">
+            <div className="block_form_checkbox">
+              <Checkbox
+                name="isGoods"
+                type="checkbox"
+                checked={this.state.isGoods}
+                onChange={this.checkIsGoods}
+              />
+              в наличии
             </div>
-  
-            <div className="categories">
-              <div className="block_form_category">
-                <InputLabel id="category">Категория</InputLabel>
-                <Select
-                  labelId="category"
-                  name="category"
-                  id="select_category"
-                  value={this.state.category}
-                  onChange={this.handleChange}
-                >
-                  <MenuItem value="vse">Все</MenuItem>
-                  {this.state.categories.map((item, index) => (
-                    <MenuItem value={item} key={index}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </div>
-              <div className="block_form_category">
-                <InputLabel id="stone">Вставка</InputLabel>
-                <Select
-                  labelId="stone"
-                  name="stone"
-                  id="select_stone"
-                  value={this.state.stone}
-                  onChange={this.handleChange}
-                >
-                  <MenuItem value="vse">Все</MenuItem>
-                  {this.state.stones.map((item, index) => (
-                    <MenuItem value={item} key={index}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </div>
-              <div className="block_form_category">
-                <InputLabel id="metall">Металл</InputLabel>
-                <Select
-                  labelId="metall"
-                  name="metall"
-                  id="select_metall"
-                  value={this.state.metall}
-                  onChange={this.handleChange}
-                >
-                  <MenuItem value="vse">Все</MenuItem>
-                  {this.state.metalls.map((item, index) => (
-                    <MenuItem value={item} key={index}>
-                      {item}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </div>
-              <div className="block_form_category">
-                <InputLabel id="pp">Мин. процент продаваемости</InputLabel>
-                <input
-                  type="text"
-                  className="input_sort"
-                  value={this.state.value}
-                  name="pp"
-                  onChange={this.handleChangeCount}
-                />
-              </div>
-  
-              <div className="block_form_category">
-                <InputLabel id="pp_max">Макс. процент продаваемости</InputLabel>
-                <input
-                  type="text"
-                  className="input_sort"
-                  value={this.state.value}
-                  name="pp_max"
-                  onChange={this.handleChangeCount}
-                />
-              </div>
-  
-              <div className="block_form_category">
-                <InputLabel id="pp">Мин. цена за грамм</InputLabel>
-                <input
-                  type="text"
-                  className="input_sort"
-                  value={this.state.value}
-                  name="price_of_gram_min"
-                  onChange={this.handleChangeCount}
-                />
-              </div>
-  
-              <div className="block_form_category">
-                <InputLabel id="pp">Макс. цена за грамм</InputLabel>
-                <input
-                  type="text"
-                  className="input_sort"
-                  value={this.state.value}
-                  name="price_of_gram_max"
-                  onChange={this.handleChangeCount}
-                />
-              </div>
+
+            <div className="block_form_checkbox">
+              <Checkbox
+                name="isNotGoods"
+                type="checkbox"
+                checked={this.state.isNotGoods}
+                onChange={this.checkIsNotGoods}
+              />
+              нет в наличии
             </div>
-            <div className="block_form_search_fast">
-              <InputLabel id="fast_search">Быстрый поиск артикула</InputLabel>
+
+            <div className="block_form_checkbox">
+              <Checkbox
+                name="isNotSizes"
+                type="checkbox"
+                checked={this.state.isNotSizes}
+                onChange={this.checkIsNotSizes}
+              />
+              нет размеров
+            </div>
+          </div>
+          <div className="categories">
+            <div className="block_form_category">
+              <InputLabel id="category">Категория</InputLabel>
+              <Select
+                labelId="category"
+                name="category"
+                id="select_category"
+                value={this.state.category}
+                onChange={this.handleChange}
+              >
+                <MenuItem value="vse">Все</MenuItem>
+                {this.state.categories.map((item, index) => (
+                  <MenuItem value={item} key={index}>
+                    {item}
+                  </MenuItem>
+                ))}
+                <MenuItem value="aliev_aydemir">Алиев Айдемир</MenuItem>
+                <MenuItem value="semenova_elena">Семенова Елена</MenuItem>
+                <MenuItem value="silaeva_natalia">Силаева Наталья</MenuItem>
+              </Select>
+            </div>
+            <div className="block_form_category">
+              <InputLabel id="stone">Вставка</InputLabel>
+              <Select
+                labelId="stone"
+                name="stone"
+                id="select_stone"
+                value={this.state.stone}
+                onChange={this.handleChange}
+              >
+                <MenuItem value="vse">Все</MenuItem>
+                {this.state.stones.map((item, index) => (
+                  <MenuItem value={item} key={index}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+            <div className="block_form_category">
+              <InputLabel id="metall">Металл</InputLabel>
+              <Select
+                labelId="metall"
+                name="metall"
+                id="select_metall"
+                value={this.state.metall}
+                onChange={this.handleChange}
+              >
+                <MenuItem value="vse">Все</MenuItem>
+                {this.state.metalls.map((item, index) => (
+                  <MenuItem value={item} key={index}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </Select>
+            </div>
+            <div className="block_form_category">
+              <InputLabel id="pp">Мин. процент продаваемости</InputLabel>
               <input
                 type="text"
                 className="input_sort"
                 value={this.state.value}
-                name="fast_search"
-                onChange={this.filterList}
+                name="pp"
+                onChange={this.handleChangeCount}
               />
             </div>
-            <div className="block_form_search_fast">
-                  Ответственный(ая): <b>{getNameOfCategory(this.state.category)}</b>
+
+            <div className="block_form_category">
+              <InputLabel id="pp_max">Макс. процент продаваемости</InputLabel>
+              <input
+                type="text"
+                className="input_sort"
+                value={this.state.value}
+                name="pp_max"
+                onChange={this.handleChangeCount}
+              />
             </div>
-  
-            <Modal_Export data={this.state.filteredList}/>
-  
-            <Button className="button_filter" onClick={this.submitFilter}>
-              Отфильтровать
-            </Button>
-            <p className="goods_count">Найдено: {this.state.filteredList.length || 0}</p>
+
+            <div className="block_form_category">
+              <InputLabel id="pp">Мин. цена за грамм</InputLabel>
+              <input
+                type="text"
+                className="input_sort"
+                value={this.state.value}
+                name="price_of_gram_min"
+                onChange={this.handleChangeCount}
+              />
+            </div>
+
+            <div className="block_form_category">
+              <InputLabel id="pp">Макс. цена за грамм</InputLabel>
+              <input
+                type="text"
+                className="input_sort"
+                value={this.state.value}
+                name="price_of_gram_max"
+                onChange={this.handleChangeCount}
+              />
+            </div>
           </div>
+          <div className="block_form_search_fast">
+            <InputLabel id="fast_search">Быстрый поиск артикула</InputLabel>
+            <input
+              type="text"
+              className="input_sort"
+              value={this.state.value}
+              name="fast_search"
+              onChange={this.filterList}
+            />
+          </div>
+          <div className="block_form_search_fast">
+            Ответственный(ая): <b>{getNameOfCategory(this.state.category)}</b>.
+            <p>Всего поставлено: {this.state.itogo_postavleno} шт. Всего продано:{" "}
+            {this.state.itogo_prodano} шт. Общий ПП:{" "}
+            {this.state.itogo_postavleno > 0
+              ? Math.round((this.state.itogo_prodano / this.state.itogo_postavleno) * 100)
+              : 0}
+            % . Остаток: {this.state.itogo_ostatok} шт.</p>
+          </div>
+          <Modal_Export data={this.state.filteredList} />
+          <Button className="button_filter" onClick={this.submitFilter}>
+            Отфильтровать
+          </Button>
+          <p className="goods_count">
+            Найдено: {this.state.filteredList.length || 0}
+          </p>
+        </div>
         <div id="content">
-                
           <table>
             <thead>
               <tr className="header_table">
-                <th name="sortByName" onClick={(e) => this.sortOfGoods(e)}>Артикул</th>
+                <th name="sortByName" onClick={(e) => this.sortOfGoods(e)}>
+                  Артикул
+                </th>
                 <th>Артикул WB</th>
-                <th name="sortByCategory" onClick={(e) => this.sortOfGoods(e)}>Категория</th>
+                <th name="sortByCategory" onClick={(e) => this.sortOfGoods(e)}>
+                  Категория
+                </th>
                 <th name="sortByDelivery" onClick={(e) => this.sortOfGoods(e)}>
                   Поставлено
                 </th>
@@ -555,39 +596,43 @@ export class Sales extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {this.state.filteredList.length > 0 ?  this.state.filteredList.map((item, index) => (
-                <tr key={index}>
-                  <td>
-                    <Link
-                      to={`/good/${item["wb_art"]}`}
-                      target="_blank"
-                      className="link_a_red"
-                    >
-                      {item["name"]}
-                    </Link>
-                  </td>
-                  <td>
-                    {" "}
-                    <Link
-                      to={`/good/${item["wb_art"]}`}
-                      target="_blank"
-                      className="link_a_red"
-                    >
-                      {item["wb_art"]}
-                    </Link>
-                  </td>
-                  <td>{item["category"]}</td>
-                  <td>{item["postavleno"]} шт.</td>
-                  <td>{item["prodano"]} шт.</td>
-                  <td>{item["pp"]} %</td>
-                  <td>{item["ostatok"]} шт.</td>
-                  <td>
-                    {typeof item["wb_no_sizes"] == "array"
-                      ? item["wb_no_sizes"].map((item, index) => item + " ")
-                      : item["wb_no_sizes"]}
-                  </td>
-                </tr>
-              )): <h1>Нет записей</h1>}
+              {this.state.filteredList.length > 0 ? (
+                this.state.filteredList.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <Link
+                        to={`/good/${item["wb_art"]}`}
+                        target="_blank"
+                        className="link_a_red"
+                      >
+                        {item["name"]}
+                      </Link>
+                    </td>
+                    <td>
+                      {" "}
+                      <Link
+                        to={`/good/${item["wb_art"]}`}
+                        target="_blank"
+                        className="link_a_red"
+                      >
+                        {item["wb_art"]}
+                      </Link>
+                    </td>
+                    <td>{item["category"]}</td>
+                    <td>{item["postavleno"]} шт.</td>
+                    <td>{item["prodano"]} шт.</td>
+                    <td>{item["pp"]} %</td>
+                    <td>{item["ostatok"]} шт.</td>
+                    <td>
+                      {typeof item["wb_no_sizes"] == "array"
+                        ? item["wb_no_sizes"].map((item, index) => item + " ")
+                        : item["wb_no_sizes"]}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <h1>Нет записей</h1>
+              )}
             </tbody>
           </table>
         </div>
