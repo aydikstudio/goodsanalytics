@@ -31,7 +31,11 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
             $data_header_value_count = count($data_header_value);
             for ($i = 0; $i < count($value); $i++) {
                     for ($a = 0; $a < count($data_header_value); $a++) {
-                        $sheet->setCellValue($alphabet[$a].$item,  $value[$i][$data_header_value[$a]['type']]);
+                        $new_value = $value[$i][$data_header_value[$a]['type']];
+                        if(is_array($new_value)) {
+                            $new_value = implode(",", $new_value);
+                        }
+                        $sheet->setCellValue($alphabet[$a].$item,  $new_value);
                     }
                 $item++;
             }

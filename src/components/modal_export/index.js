@@ -60,6 +60,10 @@ class Modal extends React.Component {
           type: "postavleno",
         },
         {
+          name: "Поставлено",
+          type: "prodano",
+        },
+        {
           name: "Возвращено поставщиком",
           type: "returned_whosaler",
         },
@@ -70,6 +74,10 @@ class Modal extends React.Component {
         {
           name: "Процент продаваемости",
           type: "pp",
+        },
+        {
+          name: "Остаток",
+          type: "ostatok",
         },
         {
           name: "Категория",
@@ -97,7 +105,7 @@ class Modal extends React.Component {
         },
         {
           name: "Нет в наличии",
-          type: "wb_sizes",
+          type: "wb_no_sizes",
         },
         {
           name: "Все размеры",
