@@ -13,6 +13,7 @@ export class Good extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       good: [],
       deficites: [],
       good_id: this.props.match.params.id,
@@ -43,7 +44,7 @@ export class Good extends React.Component {
     const self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale.json")
+      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           good: response.data.filter(
@@ -58,11 +59,15 @@ export class Good extends React.Component {
         console.log(error);
       });
 
+      
+
+
     await axios
       .get(url_ga_server + "report/report_data.php", {
         params: {
           name: this.state.good_name,
           type: "shipment",
+          company: this.state.company
         },
       })
       .then(function (response) {
@@ -83,6 +88,7 @@ export class Good extends React.Component {
         params: {
           name: this.state.good_name,
           type: "sale",
+          company: this.state.company
         },
       })
       .then(function (response) {
@@ -103,6 +109,7 @@ export class Good extends React.Component {
         params: {
           name: this.state.good_name,
           type: "return",
+          company: this.state.company
         },
       })
       .then(function (response) {
@@ -122,12 +129,13 @@ export class Good extends React.Component {
       .get(url_ga_server + "good/hypothesis.php", {
         params: {
           type: "good_hypothesis",
-          item: this.state.good_id
+          item: this.state.good_id,
+          company: this.state.company
         },
       })
       .then(function (response) {
         self.setState({
-          hypothesis: response.data,
+          hypothesis: Array.isArray(response.data) ? response.data : [],
         })(self.checkBasket());
       })
       .catch(function (error) {
@@ -137,13 +145,14 @@ export class Good extends React.Component {
       .get(url_ga_server + "order/order.php", {
         params: {
           type: "item_order_name",
-          name: this.state.good_name
+          name: this.state.good_name,
+          company: this.state.company
         },
       })
       .then(function (response) {
         console.log(response)
         self.setState({
-          orders: response.data,
+          orders: Array.isArray(response.data) ? response.data : [],
         });
       })
       .catch(function (error) {
@@ -151,7 +160,7 @@ export class Good extends React.Component {
       });
 
     await axios
-      .get(url_ga_server + "waitinglist/waitinglist.json")
+      .get(url_ga_server + "waitinglist/waitinglist_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           waitinglist: response.data.filter(
@@ -164,7 +173,7 @@ export class Good extends React.Component {
       });
 
     await axios
-      .get(url_ga_server + "deficit/deficit.json")
+      .get(url_ga_server + "deficit/deficit_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           deficites: response.data.filter(
@@ -180,7 +189,9 @@ export class Good extends React.Component {
       });
   }
 
+
   getInfo = () => {
+
     const self_img = this;
     axios
       .get(
@@ -317,8 +328,8 @@ export class Good extends React.Component {
   }
 
   checkBasket() {
-    if (localStorage.getItem("goods_basket")) {
-      let good_array = JSON.parse(localStorage.getItem("goods_basket"));
+    if (localStorage.getItem("goods_basket_"+this.state.company)) {
+      let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company));
       if (
         good_array.some((good_item) => good_item.name == this.state.good.name)
       ) {
@@ -335,24 +346,24 @@ export class Good extends React.Component {
 
   addBasket() {
     if (this.state.status_backet_good == 0) {
-      if (localStorage.getItem("goods_basket")) {
-        let good_array = JSON.parse(localStorage.getItem("goods_basket"));
+      if (localStorage.getItem("goods_basket_"+this.state.company)) {
+        let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company));
         good_array.push(this.state.good);
-        localStorage.setItem("goods_basket", JSON.stringify(good_array));
+        localStorage.setItem("goods_basket_"+this.state.company, JSON.stringify(good_array));
       } else {
         let good_array = [];
         good_array.push(this.state.good);
-        localStorage.setItem("goods_basket", JSON.stringify(good_array));
+        localStorage.setItem("goods_basket_"+this.state.company, JSON.stringify(good_array));
       }
       this.setState({
         status_backet_good: 1,
       });
     } else {
-      let good_array = JSON.parse(localStorage.getItem("goods_basket"));
+      let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company));
       good_array = good_array.filter(
         (item) => item.name != this.state.good["name"]
       );
-      localStorage.setItem("goods_basket", JSON.stringify(good_array));
+      localStorage.setItem("goods_basket_"+this.state.company, JSON.stringify(good_array));
 
       this.setState({
         status_backet_good: 0,

@@ -9,6 +9,7 @@ export class Hypothesis extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
         hypothesis: []
     };
   }
@@ -19,13 +20,13 @@ export class Hypothesis extends React.Component {
     .get(url_ga_server + "good/hypothesis.php", {
       params: {
         type: "all_hypothesis",
+        company: this.state.company
       },
     })
     .then(function (response) {
       let data = response.data;
-      console.log(data);
       self.setState({
-        hypothesis: data
+        hypothesis: Array.isArray(data) ? data : [],
       })
     })
     .catch(function (error) {

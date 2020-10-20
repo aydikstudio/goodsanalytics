@@ -20,6 +20,7 @@ export class Basket extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       data_all_goods: [],
       goods: [],
       filteredList: [],
@@ -54,7 +55,7 @@ export class Basket extends React.Component {
   }
 
   async componentDidMount() {
-    let data = JSON.parse(localStorage.getItem("goods_basket")) || [];
+    let data = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company)) || [];
     this.setState({
       filteredList: data.filter((item) => !item["date"]),
       categories: [
@@ -302,19 +303,19 @@ export class Basket extends React.Component {
   }
 
   clearBasker() {
-    localStorage.removeItem("goods_basket");
+    localStorage.removeItem("goods_basket_"+this.state.company);
     window.location.reload();
   }
 
   addToOrder(e) {
     let good_array = [];
     let goods_new_array;
-    if (localStorage.getItem("goods_order")) {
+    if (localStorage.getItem("goods_order_"+this.state.company)) {
       good_array = JSON.parse(localStorage.getItem("goods_order"));
     }
     goods_new_array = [...good_array, ...this.addGoodsUnic(good_array, this.state.filteredList)]
-    localStorage.setItem("goods_order", JSON.stringify(goods_new_array));
-    localStorage.removeItem("goods_basket");
+    localStorage.setItem("goods_order_"+this.state.company, JSON.stringify(goods_new_array));
+    localStorage.removeItem("goods_basket_"+this.state.company);
     window.location.reload();
     e.preventDefault();
   }

@@ -19,6 +19,7 @@ export class Order extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       edit: false,
       login: "",
       order_id: this.props.match.params.id || "",
@@ -60,7 +61,7 @@ export class Order extends React.Component {
     if (this.state.order_id.length > 0) {
       const self = this;
       await axios
-        .get(url_ga_server + "sale/sale.json")
+        .get(url_ga_server + "sale/sale_"+this.state.company+".json")
         .then(function (response) {
           let data = response.data;
           self.setState({
@@ -76,6 +77,7 @@ export class Order extends React.Component {
           params: {
             name: this.state.order_id,
             type: "number_order",
+            company: this.state.company
           },
         })
         .then(function (response) {
@@ -95,7 +97,7 @@ export class Order extends React.Component {
           console.log(error);
         });
     } else {
-      let data = JSON.parse(localStorage.getItem("goods_order")) || [];
+      let data = JSON.parse(localStorage.getItem("goods_order_"+this.state.company)) || [];
       this.setState({
         filteredList: data.filter((item) => !item["date"]),
         categories: [
@@ -367,7 +369,7 @@ export class Order extends React.Component {
   }
 
   clearOrder() {
-    localStorage.removeItem("goods_order");
+    localStorage.removeItem("goods_order_"+this.state.company);
     window.location.reload();
   }
 
@@ -389,7 +391,7 @@ export class Order extends React.Component {
           console.log(response.data);
           if (response.data == 1) {
             alert("Заказ на модерации.");
-            localStorage.removeItem("goods_order");
+            localStorage.removeItem("goods_order_"+this.state.company);
             window.location.reload();
           } else {
             alert("Ошибка.");
@@ -399,7 +401,7 @@ export class Order extends React.Component {
           console.log(error);
         });
 
-        localStorage.removeItem("goods_order");
+        localStorage.removeItem("goods_order_"+this.state.company);
     } else {
       alert("Заполните описание");
     }
@@ -435,7 +437,7 @@ export class Order extends React.Component {
         .catch(function (error) {
           console.log(error);
         });
-        localStorage.removeItem("goods_order");
+        localStorage.removeItem("goods_order_"+this.state.company);
     } else {
       alert("Заполните описание");
     }
@@ -454,11 +456,11 @@ export class Order extends React.Component {
       return item;
     });
 
-    if (localStorage.getItem("goods_order")) {
-      good_array = JSON.parse(localStorage.getItem("goods_order"));
+    if (localStorage.getItem("goods_order_"+this.state.company)) {
+      good_array = JSON.parse(localStorage.getItem("goods_order_"+this.state.company));
     }
 
-    localStorage.setItem("goods_order", JSON.stringify(new_array));
+    localStorage.setItem("goods_order_"+this.state.company, JSON.stringify(new_array));
 
     this.setState({
       filteredList: new_array,
@@ -476,11 +478,11 @@ export class Order extends React.Component {
       return item;
     });
 
-    if (localStorage.getItem("goods_order")) {
-      good_array = JSON.parse(localStorage.getItem("goods_order"));
+    if (localStorage.getItem("goods_order_"+this.state.company)) {
+      good_array = JSON.parse(localStorage.getItem("goods_order_"+this.state.company));
     }
 
-    localStorage.setItem("goods_order", JSON.stringify(new_array));
+    localStorage.setItem("goods_order_"+this.state.company, JSON.stringify(new_array));
 
     this.setState({
       filteredList: new_array,
@@ -494,11 +496,11 @@ export class Order extends React.Component {
       (item) => item["wb_art"] != e.target.name
     );
 
-    if (localStorage.getItem("goods_order")) {
-      good_array = JSON.parse(localStorage.getItem("goods_order"));
+    if (localStorage.getItem("goods_order_"+this.state.company)) {
+      good_array = JSON.parse(localStorage.getItem("goods_order_"+this.state.company));
     }
 
-    localStorage.setItem("goods_order", JSON.stringify(new_array));
+    localStorage.setItem("goods_order_"+this.state.company, JSON.stringify(new_array));
 
     this.setState({
       filteredList: new_array,

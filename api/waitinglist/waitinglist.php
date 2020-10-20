@@ -17,7 +17,24 @@ $sheet = $excel->getActiveSheet();
 
 $arr = [];
 
+$company="";
 
+if($_GET['company']) {
+    $company = $_GET['company'];
+}
+
+if($_POST['company']) {
+    $company = $_POST['company'];
+}
+
+
+$symbol = '';
+
+if ($company == 'juveros') {
+    $symbol = '/';
+} else if($company == 'ipalievkb') {
+    $symbol = '_';
+}
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();
@@ -72,6 +89,13 @@ $json = json_fix_cyr(json_encode($arr1));
 
 
 $filename = 'waitinglist.json';
+
+if(!empty($company)) {
+    $filename = 'waitinglist_'.$company.'.json';
+} else {
+    $filename = 'waitinglist.json';
+}
+
 $f_hdl = fopen($filename, 'w');
 
 if(fwrite($f_hdl,$json)) {

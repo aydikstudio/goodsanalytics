@@ -16,6 +16,7 @@ export class Add_return extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       downloadreportFile: null,
       statusdownloadreportFile: false,
       statusUpdatereportFile: false,
@@ -43,6 +44,7 @@ export class Add_return extends React.Component {
     formData.append("downloadreportFile", downloadreportFile);
     formData.append("date", this.state.date);
     formData.append("type", "return");
+    formData.append("company", this.state.company);
 
     return await axios
       .post(url_ga_server + "report/report.php", formData, {

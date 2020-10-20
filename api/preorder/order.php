@@ -22,6 +22,26 @@ $sheet = $excel->getActiveSheet();
 
 $arr = [];
 
+$company="";
+
+if(@$_GET['company']) {
+    $company = $_GET['company'];
+}
+
+if(@$_POST['company']) {
+    $company = $_POST['company'];
+}
+
+
+
+$symbol = '';
+
+if ($company == 'juveros') {
+    $symbol = '/';
+} else if($company == 'ipalievkb') {
+    $symbol = '_';
+}
+
 $query ="UPDATE `downloaded_status` SET `status`=1 WHERE `name`= 'preorder'";
 $result = mysqli_query($mysqli, $query) or die("Ошибка " . mysqli_error($mysqli)); 
 if(!$result) {
@@ -39,7 +59,7 @@ foreach ($sheet->getRowIterator() as $row) {
         if(!empty( $value)) {
         if($cell != "name" && $cell != "phone") {
             if($arr_index == 0) {
-                $arr_item["id"] =  $value;
+                $arr_item["id"] =  strstr($value, $symbol, true);
                 $arr_index = 1;
             } 
             
@@ -76,6 +96,14 @@ $json = json_fix_cyr(json_encode($arr1));
 
 
 $filename = 'order.json';
+
+if(!empty($company)) {
+    $filename = 'order_'.$company.'.json';
+} else {
+    $filename = 'order.json';
+}
+
+
 $f_hdl = fopen($filename, 'w');
 
 if(fwrite($f_hdl,$json)) {

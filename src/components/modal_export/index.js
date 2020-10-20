@@ -60,8 +60,12 @@ class Modal extends React.Component {
           type: "postavleno",
         },
         {
-          name: "Поставлено",
+          name: "Продано",
           type: "prodano",
+        },
+        {
+          name: "Процент продаваемость",
+          type: "pp",
         },
         {
           name: "Возвращено поставщиком",

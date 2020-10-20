@@ -17,7 +17,24 @@ $sheet = $excel->getActiveSheet();
 
 $arr = [];
 
+$company="";
 
+if(@$_GET['company']) {
+    $company = $_GET['company'];
+}
+
+if(@$_POST['company']) {
+    $company = $_POST['company'];
+}
+
+
+$symbol = '';
+
+if ($company == 'juveros') {
+    $symbol = '/';
+} else if($company == 'ipalievkb') {
+    $symbol = '_';
+}
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();
@@ -28,7 +45,7 @@ foreach ($sheet->getRowIterator() as $row) {
         $value = $cell->getValue();
         if($cell != "name" && $cell != "phone") {
             if($arr_index == 0) {
-                $arr_item["name"] =  strstr($value, '/', true);
+                $arr_item["name"] =  strstr($value, $symbol, true);
                 $arr_index = 1;
             } 
             
@@ -71,7 +88,15 @@ foreach ($result as $row) {
 $json = json_fix_cyr(json_encode($arr1));
 
 
+
 $filename = 'deficit.json';
+
+if(!empty($company)) {
+    $filename = 'deficit_'.$company.'.json';
+} else {
+    $filename = 'deficit.json';
+}
+
 $f_hdl = fopen($filename, 'w');
 
 if(fwrite($f_hdl,$json)) {

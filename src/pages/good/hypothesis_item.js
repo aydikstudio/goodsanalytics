@@ -16,6 +16,7 @@ export class Hypothesis_item extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       hip_id: this.props.match.params.id,
       good_name: "",
       good_was: {},
@@ -31,13 +32,13 @@ export class Hypothesis_item extends React.Component {
     .get(url_ga_server + "good/hypothesis.php", {
       params: {
         type: "item_hypothesis",
-        item: this.state.hip_id
+        item: this.state.hip_id,
+        company: this.state.company
       },
     })
     .then(function (response) {
-      console.log(response);
       self.setState({
-        good_was: response.data[0]
+        good_was: response.data[0] || {}
       })(self.getInfo())
     })
     .catch(function (error) {
@@ -52,7 +53,7 @@ export class Hypothesis_item extends React.Component {
 
     if(this.state.good_was["status"] == 0) {
       await axios
-      .get(url_ga_server + "sale/sale.json")
+      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           good: response.data.filter(
@@ -94,7 +95,8 @@ export class Hypothesis_item extends React.Component {
       headers: { 'Content-Type': 'application/json' },
       type: 'update_hypothesis',
       hip_id: this.state.hip_id,
-      data: JSON.stringify(this.state.good)
+      data: JSON.stringify(this.state.good),
+      company: this.state.company
    };
 
       await axios
@@ -119,7 +121,8 @@ export class Hypothesis_item extends React.Component {
     .get(url_ga_server + "good/hypothesis.php", {
       params: {
         type: "delete_hypothesis",
-        item: this.state.hip_id
+        item: this.state.hip_id,
+        company: this.state.company
       },
     })
     .then(function (response) {

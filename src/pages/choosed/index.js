@@ -20,6 +20,7 @@ export class Choosed extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       data_all_goods: [],
       goods: [],
       filteredList: [],
@@ -60,7 +61,7 @@ export class Choosed extends React.Component {
     let self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale.json")
+      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -93,7 +94,7 @@ export class Choosed extends React.Component {
   getOrderData() {
     let self = this;
     axios
-      .get(url_ga_server + "preorder/order.json")
+      .get(url_ga_server + "preorder/order_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({

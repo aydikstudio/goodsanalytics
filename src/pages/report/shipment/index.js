@@ -7,6 +7,7 @@ export class Shipment_report extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       goods: []
     };
   }
@@ -18,6 +19,7 @@ export class Shipment_report extends React.Component {
       params: {
         name: this.state.good_name,
         type: "all_shipment",
+        company: this.state.company
       },
     })
     .then(function (response) {

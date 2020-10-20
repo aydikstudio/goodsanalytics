@@ -43,6 +43,7 @@ export class Login extends React.Component {
                 alert("Авторизация прошла успешно");
                 localStorage.setItem('name', response.data);
                 localStorage.setItem('login', dostup.login);
+                localStorage.setItem('company', "juveros");
                 window.location.reload();
             }
 

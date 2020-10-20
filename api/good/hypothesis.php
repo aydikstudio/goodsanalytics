@@ -3,6 +3,17 @@ session_start();
 require_once '../config/config.php';
 
 
+$company="";
+
+if(@$_GET['company']) {
+    $company = $_GET['company'];
+}
+
+if(@$_POST['company']) {
+    $company = $_POST['company'];
+}
+
+
 if(isset($_GET)) {
 
     if(isset($_GET['type'])) {
@@ -11,7 +22,7 @@ if(isset($_GET)) {
 
 
     if($type == "item_hypothesis") {
-        $query = "SELECT * FROM `hypothesis` WHERE hyp_id=".$_GET['item'];
+        $query = "SELECT * FROM `hypothesis` WHERE hyp_id=".$_GET['item']." and company='".$company."'  order by hyp_id desc";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -24,7 +35,7 @@ if(isset($_GET)) {
 
 
     if($type == "all_hypothesis") {
-        $query = "SELECT * FROM hypothesis order by hyp_id desc";
+        $query = "SELECT * FROM hypothesis WHERE company='".$company."' order by hyp_id desc";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -36,7 +47,7 @@ if(isset($_GET)) {
     }
 
     if($type == "good_hypothesis") {
-        $query = "SELECT * FROM hypothesis WHERE wb_art=".$_GET['item'];
+        $query = "SELECT * FROM hypothesis WHERE wb_art=".$_GET['item']." and company='".$company."' order by hyp_id desc";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -85,9 +96,9 @@ if(isset($_POST)) {
     
     
     if($type == "add_hypothesis") {
-        $query_add = "INSERT INTO `hypothesis`(`wb_art`, `name`, `was_ship`, `was_sale`, `was_date`, `status`, `description`, `user_login`)
+        $query_add = "INSERT INTO `hypothesis`(`wb_art`, `name`, `was_ship`, `was_sale`, `was_date`, `status`, `description`, `user_login`, `company`)
         VALUES ('".$value['wb_art']."', '".$value['name']."', '".$value['postavleno']."', '".$value['prodano']."', '".$date."', 
-        '0', '".$value['desc']."','".$user_login."')";
+        '0', '".$value['desc']."','".$user_login."', '".$value['company']."')";
         $res_add = mysqli_query($mysqli, $query_add);
         if($res_add) {
             echo 1;

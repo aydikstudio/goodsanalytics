@@ -23,7 +23,25 @@ $excel->setActiveSheetIndex(0); // получить данные из указа
 
 $sheet = $excel->getActiveSheet();
 
+$company="";
 
+if(@$_GET['company']) {
+    $company = $_GET['company'];
+}
+
+if(@$_POST['company']) {
+    $company = $_POST['company'];
+}
+
+
+
+$symbol = '';
+
+if ($company == 'juveros') {
+    $symbol = '/';
+} else if($company == 'ipalievkb') {
+    $symbol = '_';
+}
 
 $arr = [];
 
@@ -38,7 +56,7 @@ foreach ($sheet->getRowIterator() as $row) {
         if(!empty( $value)) {
         if($cell != "name" && $cell != "phone") {
             if($arr_index == 0) {
-                $arr_item["id"] =  strstr($value, '/', true);
+                $arr_item["id"] =  strstr($value, $symbol, true);
                 $arr_index = 1;
             } 
             
@@ -163,7 +181,7 @@ $type = $_POST["type"];
 
 if($type == "shipment") {
     for ($x=0; $x<count($arr1); $x++) {
-        $query_add = "INSERT INTO `shipment`(`name`, `count`, `date`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."')";
+        $query_add = "INSERT INTO `shipment`(`name`, `count`, `date`, `company`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."')";
         $res_add = mysqli_query($mysqli, $query_add);
     }
 }
@@ -171,14 +189,14 @@ if($type == "shipment") {
 
 if($type == "sale") {
     for ($x=0; $x<count($arr1); $x++) {
-        $query_add = "INSERT INTO `sale`(`name`, `count`, `date`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."')";
+        $query_add = "INSERT INTO `sale`(`name`, `count`, `date`, `company`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."')";
         $res_add = mysqli_query($mysqli, $query_add);
     }
 }
 
 if($type == "return") {
     for ($x=0; $x<count($arr1); $x++) {
-        $query_add = "INSERT INTO `returned`(`name`, `count`, `date`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."')";
+        $query_add = "INSERT INTO `returned`(`name`, `count`, `date`, `company`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."')";
         $res_add = mysqli_query($mysqli, $query_add);
     }
 }

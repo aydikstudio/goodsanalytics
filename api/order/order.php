@@ -10,6 +10,25 @@ ini_set('max_execution_time', 1800);
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+$company="";
+
+if(@$_GET['company']) {
+    $company = $_GET['company'];
+}
+
+if(@$_POST['company']) {
+    $company = $_POST['company'];
+}
+
+
+$symbol = '';
+
+if ($company == 'juveros') {
+    $symbol = '/';
+} else if($company == 'ipalievkb') {
+    $symbol = '_';
+}
+
 if(isset($_GET)) {
 
     if(isset($_GET['type'])) {
@@ -17,7 +36,7 @@ if(isset($_GET)) {
     $type = $_GET['type'];
     
     if($type == "item_order_name") {
-        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' ORDER BY `order_id` DESC";
+        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' and company='".$company."' ORDER BY `order_id` DESC";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -29,7 +48,7 @@ if(isset($_GET)) {
     }
 
     if($type == "item_order") {
-        $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item'];
+        $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item']." and company='".$company."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -42,7 +61,7 @@ if(isset($_GET)) {
 
 
     if($type == "number_order") {
-        $query = "SELECT * FROM `order` WHERE `number_order`=".$_GET['name'];
+        $query = "SELECT * FROM `order` WHERE `number_order`=".$_GET['name']." and company='".$company."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -54,7 +73,7 @@ if(isset($_GET)) {
     }
 
     if($type == "all_orders") {
-        $query = "SELECT DISTINCT `number_order`, `user_login`, `status_order`, `date` FROM `order` ORDER BY 'status_order' DESC";
+        $query = "SELECT DISTINCT `number_order`, `user_login`, `status_order`, `date` FROM `order` WHERE company='".$company."'  ORDER BY 'status_order' DESC";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -100,8 +119,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`)
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -140,8 +159,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['comment']."', 0, '".$user_login."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`)
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -172,7 +191,7 @@ if(isset($_POST)) {
         $query = "UPDATE `order` SET `status_order`=1, `date`='".$date."' WHERE `number_order`=".$number_order;
         $res = mysqli_query($mysqli, $query);
 
-        $query = "SELECT `name` FROM `users` WHERE `login`='".$value[0]['user_login']."'";
+        $query = "SELECT `name` FROM `users` WHERE `login`='".$value[0]['user_login']."' and `company` = ".$company;
         $res = mysqli_query($mysqli, $query);
         $result =  mysqli_fetch_assoc($res);
 
@@ -180,7 +199,7 @@ if(isset($_POST)) {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setCellValue('A1', 'Номер заказа:');
-        $sheet->setCellValue('B1', $number_order);
+        $sheet->setCellValue('B1', $number_order."_".$company);
         $sheet->setCellValue('A2', 'Автор:');
         $sheet->setCellValue('B2',  $result['name']);
         $sheet->setCellValue('A3', 'Дата:');
@@ -192,6 +211,7 @@ if(isset($_POST)) {
         $sheet->setCellValue('E5', 'ПП');
         $sheet->setCellValue('F5', 'Кол-во');
         $sheet->setCellValue('G5', 'Комментарий');
+        
 
         $item = 6;
 

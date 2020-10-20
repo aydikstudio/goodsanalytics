@@ -16,6 +16,7 @@ export class Hypothesis_add extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       good: {},
       good_id: this.props.match.params.id,
       desc: "Что будем делать?",
@@ -26,7 +27,7 @@ export class Hypothesis_add extends React.Component {
     const self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale.json")
+      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           good: response.data.filter(
@@ -45,6 +46,8 @@ export class Hypothesis_add extends React.Component {
     if (this.state.desc.length > 0) {
       let good_add = this.state.good;
       good_add.desc = this.state.desc;
+      good_add.company = this.state.company;
+      
       const options = {
         headers: { 'Content-Type': 'application/json' },
         type: 'add_hypothesis',

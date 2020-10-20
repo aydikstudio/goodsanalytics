@@ -20,6 +20,7 @@ export class Deleted_models extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       data_all_goods: [],
       goods: [],
       filteredList: [],
@@ -58,7 +59,7 @@ export class Deleted_models extends React.Component {
     let self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale.json")
+      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
