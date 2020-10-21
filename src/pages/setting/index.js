@@ -17,6 +17,7 @@ export class Setting extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      company: localStorage.getItem('company') || "juveros",
       downloadsaleFile: null,
       statusDownloadsaleFile: false,
       statusUpdatesaleFile: false,
@@ -119,7 +120,9 @@ export class Setting extends React.Component {
     let ref = this;
     this.setState({ statusUpdatesaleFile: true });
     axios
-      .get(url_ga_server + "sale/sale.php")
+      .get(url_ga_server + "sale/sale.php", {
+        'company': this.state.company
+      })
       .then(function (res) {
         if (res.data === "yes") {
           alert("Данные обновлены");
@@ -170,7 +173,9 @@ export class Setting extends React.Component {
     let ref = this;
     this.setState({ statusUpdateorderFile: true });
     axios
-      .get(url_ga_server + "preorder/order.php")
+      .get(url_ga_server + "preorder/order.php", {
+        'company': this.state.company
+      })
       .then(function (res) {
         if (res.data == "yes") {
           alert("Данные обновлены");
@@ -220,7 +225,11 @@ export class Setting extends React.Component {
     let ref = this;
     this.setState({ statusUpdatelistwaitingFile: true });
     axios
-      .get(url_ga_server + "waitinglist/waitinglist.php")
+      .get(url_ga_server + "waitinglist/waitinglist.php", {
+        params: {
+          company: this.state.company
+        }
+      })
       .then(function (res) {
         if (res.data == "yes") {
           ref.setState({ statusUpdatelistwaitingFile: false });
@@ -271,7 +280,11 @@ export class Setting extends React.Component {
       let ref = this;
       this.setState({ statusUpdatedeficitFile: true });
       axios
-        .get(url_ga_server + "deficit/deficit.php")
+        .get(url_ga_server + "deficit/deficit.php", {
+          params: {
+            company: this.state.company
+          }
+        })
         .then(function (res) {
           if (res.data == "yes") {
             ref.setState({ statusUpdatedeficitFile: false });

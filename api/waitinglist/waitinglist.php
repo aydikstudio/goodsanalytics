@@ -19,22 +19,14 @@ $arr = [];
 
 $company="";
 
-if($_GET['company']) {
+if(@$_GET['company']) {
     $company = $_GET['company'];
 }
 
-if($_POST['company']) {
+if(@$_POST['company']) {
     $company = $_POST['company'];
 }
 
-
-$symbol = '';
-
-if ($company == 'juveros') {
-    $symbol = '/';
-} else if($company == 'ipalievkb') {
-    $symbol = '_';
-}
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();
@@ -88,7 +80,7 @@ foreach ($result as $row) {
 $json = json_fix_cyr(json_encode($arr1));
 
 
-$filename = 'waitinglist.json';
+$filename = '';
 
 if(!empty($company)) {
     $filename = 'waitinglist_'.$company.'.json';

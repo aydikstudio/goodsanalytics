@@ -21,14 +21,6 @@ if(@$_POST['company']) {
 }
 
 
-$symbol = '';
-
-if ($company == 'juveros') {
-    $symbol = '/';
-} else if($company == 'ipalievkb') {
-    $symbol = '_';
-}
-
 if(isset($_GET)) {
 
     if(isset($_GET['type'])) {
@@ -111,7 +103,10 @@ if(isset($_POST)) {
     $date =  date("d/m/Y");
     $value = json_decode($good[0], true);
 
+    
+
     if($type == "add_order") {
+        $company1 = json_decode(file_get_contents('php://input'), true)['company'];
         $order_id = rand(100, 50000);
         if(!isset($_SESSION['login'])) {
             $user_login = 'Не указано';
@@ -120,7 +115,7 @@ if(isset($_POST)) {
         }
         for ($i = 0; $i < count($value); $i++) {
             $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company."')";
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -149,6 +144,7 @@ if(isset($_POST)) {
     if($type == "edit_order") {
 
         $number_order = json_decode(file_get_contents('php://input'), true)['number_order'];
+        $company1 = json_decode(file_get_contents('php://input'), true)['company'];
 
         $query = "DELETE FROM `order` WHERE `number_order`=".$number_order;
         $res = mysqli_query($mysqli, $query);
@@ -160,7 +156,7 @@ if(isset($_POST)) {
         }
         for ($i = 0; $i < count($value); $i++) {
             $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company."')";
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -191,7 +187,7 @@ if(isset($_POST)) {
         $query = "UPDATE `order` SET `status_order`=1, `date`='".$date."' WHERE `number_order`=".$number_order;
         $res = mysqli_query($mysqli, $query);
 
-        $query = "SELECT `name` FROM `users` WHERE `login`='".$value[0]['user_login']."' and `company` = ".$company;
+        $query = "SELECT `name` FROM `users` WHERE `login`='".$value[0]['user_login']."'";
         $res = mysqli_query($mysqli, $query);
         $result =  mysqli_fetch_assoc($res);
 

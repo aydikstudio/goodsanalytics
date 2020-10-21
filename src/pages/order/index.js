@@ -383,6 +383,7 @@ export class Order extends React.Component {
         headers: { "Content-Type": "application/json" },
         type: "add_order",
         data: JSON.stringify(good_add),
+        company:  this.state.company
       };
 
       await axios
@@ -420,7 +421,8 @@ export class Order extends React.Component {
         headers: { "Content-Type": "application/json" },
         type: "edit_order",
         data: JSON.stringify(good_add),
-        number_order: this.state.order_id
+        number_order: this.state.order_id,
+        company:  this.state.company
       };
 
       await axios
