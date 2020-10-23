@@ -712,7 +712,7 @@ export class Good extends React.Component {
                     </td>
                       <td>{item["order_count"]}</td>
                       <td>{item["accept_count"]}</td>
-                      <td>{item["order_count"] <=  item["accept_count"] ? "Выполнен" : "Невыполнен"}</td>
+                      <td>{parseInt(item["accept_count"]) >= parseInt(item["order_count"])  ? "Выполнен" : "Невыполнен"}</td>
                       <td>{item["date"] || 'Не отправлен'}</td>
                       <td>{getStatus(item["status_order"])}</td>
                     </tr>
