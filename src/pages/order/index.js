@@ -19,6 +19,7 @@ export class Order extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      accept_count: '',
       company: localStorage.getItem('company') || "juveros",
       edit: false,
       login: "",
@@ -82,6 +83,7 @@ export class Order extends React.Component {
         })
         .then(function (response) {
           let data = response.data;
+          console.log(data);
           self.setState({
             login: data[0]["user_login"],
             status_order: data[0]["status_order"],
@@ -139,6 +141,14 @@ export class Order extends React.Component {
         }
       }
 
+
+      else if (this.state.status_order == 1) {
+        if (login == this.state.login) {
+          this.setState({
+            accept_count: 'edit'
+          })
+        }
+      }
   }
 
   checkIsNotGoods(event) {
@@ -411,7 +421,7 @@ export class Order extends React.Component {
   }
 
 
-  async editToOrderToModarate(e) {
+  async editToOrderToModarate(e, status_order) {
     const self = this;
     const event = e;
 
@@ -422,17 +432,23 @@ export class Order extends React.Component {
         type: "edit_order",
         data: JSON.stringify(good_add),
         number_order: this.state.order_id,
-        company:  this.state.company
+        company:  this.state.company,
+        status_order: status_order
       };
+
 
       await axios
         .post(url_ga_server + "order/order.php", options)
         .then(function (response) {
           console.log(response.data);
-          if (response.data == 1) {
+          if (response.data == 1 && status_order == 0) {
             alert("Заказ на модерации.");
             window.location.reload();
-          } else {
+          } else if (response.data == 1 && status_order == 1) {
+            alert("Обновлено.");
+            window.location.reload();
+          }
+          else {
             alert("Ошибка.");
           }
         })
@@ -447,6 +463,8 @@ export class Order extends React.Component {
     event.preventDefault();
   }
 
+
+  
   changeCountOfGood(e) {
     let good_array;
 
@@ -468,6 +486,30 @@ export class Order extends React.Component {
       filteredList: new_array,
     });
   }
+
+  changeCountOfGoodAccept(e) {
+    let good_array;
+
+    let new_array = this.state.filteredList.map((item) => {
+      if (item["wb_art"] == e.target.name) {
+        item["accept_count"] = e.target.value;
+      }
+
+      return item;
+    });
+
+    if (localStorage.getItem("goods_order_"+this.state.company)) {
+      good_array = JSON.parse(localStorage.getItem("goods_order_"+this.state.company));
+    }
+
+    localStorage.setItem("goods_order_"+this.state.company, JSON.stringify(new_array));
+
+    this.setState({
+      filteredList: new_array,
+    });
+  }
+
+
 
   changeTextOfGood(e) {
     let good_array;
@@ -512,10 +554,11 @@ export class Order extends React.Component {
   }
 
   getActions() {
+
     let login = localStorage.getItem("login");
-    if (this.state.order_id.length > 0) {
-      if (this.state.status_order == 0) {
-        if (login == "Kamil.Alievator") {
+
+
+        if (login == "Kamil.Alievator" && this.state.status_order == 0) {
           return (
             <div className="actions">
               <a href="#" className="action_green"  onClick={(e) => this.aproveOrder(e)}>
@@ -528,7 +571,7 @@ export class Order extends React.Component {
           );
           
           
-        } else if (login == this.state.login) {
+        } else if (login == this.state.login && this.state.status_order == 0) {
 
           return (
             <div className="actions">
@@ -542,43 +585,61 @@ export class Order extends React.Component {
           );
 
         }
-      } else if ((login == this.state.login) && (this.state.status_order == 3 || this.state.status_order == 2)) {
-        return (
-          <div className="actions">
-            <a href="#" className="action_green" onClick={(e) => this.editToOrderToModarate(e)}>
-              на модерацию
-            </a>
-            <a href="#" className="action_red" onClick={(e) => this.changeStatus('delete')}>
-              удалить
-            </a>
-          </div>
-        );
-      }
-    } else {
+
+        else if  ((login == this.state.login) && (this.state.status_order == 3 || this.state.status_order == 2)) {
+          return (
+            <div className="actions">
+              <a href="#" className="action_green" onClick={(e) => this.editToOrderToModarate(e, 0)}>
+                на модерацию
+              </a>
+              <a href="#" className="action_red" onClick={(e) => this.changeStatus('delete')}>
+                удалить
+              </a>
+            </div>
+          );
+        }
       
-      if (this.state.filteredList.length > 0) {
-        return (
-          <div className="actions">
-            <a
-              href="#"
-              className="action_green"
-              onClick={(e) => this.addToOrderToModarate(e)}
-            >
-              оформить заказ
-            </a>
-            <a
-              href="#"
-              onClick={() => this.clearOrder()}
-              className="action_red"
-            >
-              очистить заказ
-            </a>
-          </div>
-        );
-      }
-    }
+      
+        
+        else if  (login == this.state.login && this.state.status_order == 1) {
+          return (
+            <div className="actions">
+              <a href="#" className="action_green" onClick={(e) => this.editToOrderToModarate(e, 1)}>
+                Обновить
+              </a>
+            </div>
+          );
+        }
+
+        else if(login == this.state.login) {
+          return (
+            <div className="actions">
+              <a
+                href="#"
+                className="action_green"
+                onClick={(e) => this.addToOrderToModarate(e)}
+              >
+                оформить заказ
+              </a>
+              <a
+                href="#"
+                onClick={() => this.clearOrder()}
+                className="action_red"
+              >
+                очистить заказ
+              </a>
+            </div>
+          );
+        }
+          
+      
   
-  }
+  
+       
+      } 
+  
+ 
+   
 
 
   async aproveOrder(e) {
@@ -812,7 +873,8 @@ export class Order extends React.Component {
                 <th name="sortByPP" onClick={(e) => this.sortOfGoods(e)}>
                   Процент продаваемости
                 </th>
-                <th>Кол-во</th>
+                <th>Кол-во заказанного</th>
+                <th>Кол-во получено</th>
                 <th>Комментарии</th>
                 <th>Удалить</th>
               </tr>
@@ -851,6 +913,16 @@ export class Order extends React.Component {
                         value={item["order_count"]}
                         name={item["wb_art"]}
                         onChange={(e) => this.changeCountOfGood(e)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        disabled={this.state.accept_count != 'edit' ? "disabled" : ""}
+                        type="text"
+                        className="order_count_goods"
+                        value={item["accept_count"]}
+                        name={item["wb_art"]}
+                        onChange={(e) => this.changeCountOfGoodAccept(e)}
                       />
                     </td>
                     <td>

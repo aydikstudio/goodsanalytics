@@ -28,7 +28,7 @@ if(isset($_GET)) {
     $type = $_GET['type'];
     
     if($type == "item_order_name") {
-        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' and company='".$company."' ORDER BY `order_id` DESC";
+        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' ORDER BY `order_id` DESC";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -40,7 +40,7 @@ if(isset($_GET)) {
     }
 
     if($type == "item_order") {
-        $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item']." and company='".$company."'";
+        $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item']."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -53,7 +53,7 @@ if(isset($_GET)) {
 
 
     if($type == "number_order") {
-        $query = "SELECT * FROM `order` WHERE `number_order`=".$_GET['name']." and company='".$company."'";
+        $query = "SELECT * FROM `order` WHERE `number_order`=".$_GET['name'];
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -114,8 +114,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`, `date`)
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."', '".$date."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -145,8 +145,9 @@ if(isset($_POST)) {
 
         $number_order = json_decode(file_get_contents('php://input'), true)['number_order'];
         $company1 = json_decode(file_get_contents('php://input'), true)['company'];
-
+        $status_order = json_decode(file_get_contents('php://input'), true)['status_order'];
         $query = "DELETE FROM `order` WHERE `number_order`=".$number_order;
+        $date =  date("d.m.Y");
         $res = mysqli_query($mysqli, $query);
       
         if(!isset($_SESSION['login'])) {
@@ -155,34 +156,40 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `accept_count`, `comment`, `status_order`, `user_login`, `company`, `date`)
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['accept_count']."', '".$value[$i]['comment']."', '".$status_order."', '".$user_login."', '".$company1."', '".$date."')";
             mysqli_query($mysqli, $query_add);
         }
 
-        $subject = 'Заказ №'.$number_order.'на модерации. Проверьте';
+        if($status_order == 0) {
+            $subject = 'Заказ №'.$number_order.'на модерации. Проверьте';
 
-        $message = '
-        <html>
-        <head>
-        <title>Заказ на модерации</title>
-        </head>
-        <body>
-        <p>Заказ №'.$number_order.'на модерации. Проверьте</p>
-        </body>
-        </html>
-        ';
+            $message = '
+            <html>
+            <head>
+            <title>Заказ на модерации</title>
+            </head>
+            <body>
+            <p>Заказ №'.$number_order.'на модерации. Проверьте</p>
+            </body>
+            </html>
+            ';
+    
+            $headers  = 'MIME-Version: 1.0' . "\r\n";
+            $headers .= "Content-type: text/html; charset=utf-8 \r\n";
+    
+            mail('optgold@mail.ru', $subject, $message, $headers);
+            mail('kbaliev55@gmail.com', $subject, $message, $headers);
+        }
 
-        $headers  = 'MIME-Version: 1.0' . "\r\n";
-        $headers .= "Content-type: text/html; charset=utf-8 \r\n";
-
-        mail('kbaliev55@gmail.com', $subject, $message, $headers);
+       
 
         echo 1;
     }
 
     if($type == "aprove_order") {
         $number_order = json_decode(file_get_contents('php://input'), true)['number_order'];
+        $company1 = json_decode(file_get_contents('php://input'), true)['company'];
         $date =  date("d.m.Y");
         $query = "UPDATE `order` SET `status_order`=1, `date`='".$date."' WHERE `number_order`=".$number_order;
         $res = mysqli_query($mysqli, $query);
@@ -195,7 +202,7 @@ if(isset($_POST)) {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setCellValue('A1', 'Номер заказа:');
-        $sheet->setCellValue('B1', $number_order."_".$company);
+        $sheet->setCellValue('B1', $number_order."_".$company1);
         $sheet->setCellValue('A2', 'Автор:');
         $sheet->setCellValue('B2',  $result['name']);
         $sheet->setCellValue('A3', 'Дата:');

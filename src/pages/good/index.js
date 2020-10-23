@@ -693,8 +693,10 @@ export class Good extends React.Component {
                 <tr>
                   <th>Номер заказа</th>
                   <th>Заказано</th>
-                  <th>Дата одобрения заказа</th>
-                  <th>Статус</th>
+                  <th>Получено</th>
+                  <th>Статус по заявке</th>
+                  <th>Дата изменения заказа</th>
+                  <th>Статус заказа</th>
                 </tr>
                 {this.state.orders.length > 0 ? (
                   this.state.orders.map((item, index) => (
@@ -709,6 +711,8 @@ export class Good extends React.Component {
                       </Link>
                     </td>
                       <td>{item["order_count"]}</td>
+                      <td>{item["accept_count"]}</td>
+                      <td>{item["order_count"] <=  item["accept_count"] ? "Выполнен" : "Невыполнен"}</td>
                       <td>{item["date"] || 'Не отправлен'}</td>
                       <td>{getStatus(item["status_order"])}</td>
                     </tr>
