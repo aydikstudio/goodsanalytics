@@ -84,6 +84,8 @@ export class Sales extends React.Component {
       .catch(function (error) {
         console.log(error);
       });
+
+      
   }
 
   getDeletedModels() {
@@ -102,7 +104,7 @@ export class Sales extends React.Component {
             data,
             self.state.data_all_goods
           ),
-        });
+        })(self.getSaleWeek());
       })
       .catch(function (error) {
         console.log(error);
@@ -118,6 +120,88 @@ export class Sales extends React.Component {
     });
     this.countByEffective(arr);
     return arr;
+  }
+
+  async getSaleWeek() {
+    let self = this;
+    await axios
+      .get(url_ga_server + "sale_week/sale_week_"+this.state.company+".json")
+      .then(function (response) {
+        let data = response.data;
+        self.setState({
+          data_all_goods: self.state.data_all_goods.map((obj) => {
+            let new_data = data.find(
+              (item) => item["sale_week_name"] == obj["name"]
+            );
+            
+            return { ...obj, ...new_data };
+          }),
+          filteredList: self.state.filteredList.map((obj) => {
+            let new_data = data.find(
+              (item) => item["sale_week_name"] == obj["name"]
+            );
+            
+            return { ...obj, ...new_data };
+          })
+        })(self.getTurnOver());;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+
+  async getTurnOver() {
+    let self = this;
+    await axios
+      .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
+      .then(function (response) {
+        let data = response.data;
+        self.setState({
+          data_all_goods: self.state.data_all_goods.map((obj) => {
+            let new_data = data.find(
+              (item) => item["wb_art"] == obj["wb_art"]
+            );
+            
+            return { ...obj, ...new_data };
+          }),
+          filteredList: self.state.filteredList.map((obj) => {
+            let new_data = data.find(
+              (item) => item["wb_art"] == obj["wb_art"]
+            );
+            
+            return { ...obj, ...new_data };
+          })
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      this.getPay()
+  }
+
+
+  getPay() {
+    let self = this;
+    
+      this.setState({
+        data_all_goods:  self.state.data_all_goods.map((obj) => {
+          if (obj['days'] && obj['sale_week_ostatok'] && obj['sale_week_prodano'] ) {
+            obj['storage'] = obj['days'] > 60 ? parseInt(Math.abs((obj["sale_week_ostatok"] - obj["sale_week_prodano"]/7*60)*0.5*7).toFixed()) : 0
+          } else {
+            obj['storage'] = 0;
+          }
+          return { ...obj };
+        }),
+        filteredList: self.state.filteredList.map((obj) => {
+          if (obj['days'] && obj['sale_week_ostatok'] && obj['sale_week_prodano']) {
+            obj['storage'] = obj['days'] > 60 ? parseInt(Math.abs((obj["sale_week_ostatok"] - obj["sale_week_prodano"]/7*60)*0.5*7).toFixed()) : 0
+          }  else {
+            obj['storage'] = 0;
+          }
+          return { ...obj };
+        })
+      })
   }
 
   checkIsNotGoods(event) {
@@ -403,6 +487,43 @@ export class Sales extends React.Component {
         });
       }
     }
+
+    if (name == "Оборачиваемость") {
+      if (this.state.sortByTurnOver) {
+        this.state.filteredList.sort(function (a, b) {
+          return b["days"] - a["days"];
+        });
+        this.setState({
+          sortByTurnOver: !this.state.sortByTurnOver,
+        });
+      } else {
+        this.state.filteredList.sort(function (a, b) {
+          return a["days"] - b["days"];
+        });
+        this.setState({
+          sortByTurnOver: !this.state.sortByTurnOver,
+        });
+      }
+    }
+
+
+    if (name == "Плата за хранение") {
+      if (this.state.sortByStorage) {
+        this.state.filteredList.sort(function (a, b) {
+          return a['storage'] - b['storage']
+        });
+        this.setState({
+          sortByStorage: !this.state.sortByStorage,
+        });
+      } else {
+        this.state.filteredList.sort(function (a, b) {
+          return b['storage'] - a['storage']
+        });
+        this.setState({
+          sortByStorage: !this.state.sortByStorage,
+        });
+      }
+    }
   }
 
   render() {
@@ -559,6 +680,9 @@ export class Sales extends React.Component {
               ? Math.round((this.state.itogo_prodano / this.state.itogo_postavleno) * 100)
               : 0}
             % . Остаток: {this.state.itogo_ostatok} шт.</p>
+            <p>За прошлую неделю заплатили за хранение:  {this.state.filteredList.length > 0 ? this.state.filteredList
+                        .map((item) => item['storage'] || 0)
+                        .reduce((prev, curr) => prev + curr || 0) : '0'} руб.</p>
           </div>
           <Modal_Export data={this.state.filteredList} />
           <Button className="button_filter" onClick={this.submitFilter}>
@@ -590,6 +714,12 @@ export class Sales extends React.Component {
                 </th>
                 <th name="sortByOstatok" onClick={(e) => this.sortOfGoods(e)}>
                   Остаток
+                </th>
+                <th name="sortByTurnOver" onClick={(e) => this.sortOfGoods(e)}>
+                  Оборачиваемость
+                </th>
+                <th name="sortByStorage" onClick={(e) => this.sortOfGoods(e)}>
+                  Плата за хранение
                 </th>
                 <th name="sortByNoSizes" onClick={(e) => this.sortOfGoods(e)}>
                   Отсутствующие размеры
@@ -624,6 +754,8 @@ export class Sales extends React.Component {
                     <td>{item["prodano"]} шт.</td>
                     <td>{item["pp"]} %</td>
                     <td>{item["ostatok"]} шт.</td>
+                    <td>{item["days"]} дн.</td>
+                    <td>{item["storage"] > 0 ?  item["storage"]+" руб.": "Ничего не платим"}</td>
                     <td>
                       {typeof item["wb_no_sizes"] == "array"
                         ? item["wb_no_sizes"].map((item, index) => item + " ")

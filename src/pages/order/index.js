@@ -611,7 +611,7 @@ export class Order extends React.Component {
           );
         }
 
-        else if(login == this.state.login) {
+        else {
           return (
             <div className="actions">
               <a

@@ -135,7 +135,7 @@ if(isset($_POST)) {
         $headers  = 'MIME-Version: 1.0' . "\r\n";
         $headers .= "Content-type: text/html; charset=utf-8 \r\n";
 
-        mail('kbaliev55@gmail.com', $subject, $message, $headers);
+        mail('optgold@mail.ru', $subject, $message, $headers);
         mail('aydikstudio@gmail.com', $subject, $message, $headers);
         echo 1;
     }

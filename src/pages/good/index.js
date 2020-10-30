@@ -14,6 +14,10 @@ export class Good extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      good_week: {
+        sale_week_ostatok: 0,
+        sale_week_prodano: 0
+      },
       good: [],
       deficites: [],
       good_id: this.props.match.params.id,
@@ -36,7 +40,11 @@ export class Good extends React.Component {
       itogoShipment: 0,
       itogoSales: 0,
       itogoVozvrati: 0,
-      orders: []
+      orders: [],
+      turnoverlist: [{
+        status: 'нет данных',
+        days: 'нет данных'
+      }]
     };
   }
 
@@ -172,6 +180,7 @@ export class Good extends React.Component {
         console.log(error);
       });
 
+
     await axios
       .get(url_ga_server + "deficit/deficit_"+this.state.company+".json")
       .then(function (response) {
@@ -187,7 +196,41 @@ export class Good extends React.Component {
       .catch(function (error) {
         console.log(error);
       });
+
+      await axios
+      .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
+      .then(function (response) {
+        self.setState({
+          turnoverlist: response.data.filter(
+            (item) => item["wb_art"] == self.state.good_id
+          ),
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+
+
+      await axios
+      .get(url_ga_server + "sale_week/sale_week_"+this.state.company+".json")
+      .then(function (response) {
+        console.log()
+        self.setState({
+          good_week: response.data.filter(
+            (item) => item["sale_week_name"] == self.state.good_name
+          )[0] || this.state.good_week
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+
   }
+
+
+  
 
 
   getInfo = () => {
@@ -372,6 +415,9 @@ export class Good extends React.Component {
   }
 
   render() {
+    console.log('Остаток на начало:'+this.state.good_week["sale_week_ostatok"])
+    console.log('Продано за расчетный период:'+this.state.good_week["sale_week_prodano"])
+    console.log(((this.state.good_week["sale_week_ostatok"] - this.state.good_week["sale_week_prodano"]/7*60)*0.5*7).toFixed())
     return (
       <div>
         <div id="content">
@@ -436,6 +482,15 @@ export class Good extends React.Component {
               <p>
                 Остаток:{" "}
                 <b>{this.state.good["ostatok"]} шт.</b>
+              </p>
+              <p>
+                Оборачиваемость: <b>{this.state.turnoverlist[0]['days']} (дней)</b>
+              </p>
+              <p>
+                Неликвид:  <b>{this.state.turnoverlist[0]['status']}</b>
+              </p>
+              <p>
+                Ориентировочная стоимость за хранение:  <b>{this.state.turnoverlist[0]['days'] > 60 && this.state.good_week["sale_week_ostatok"] > 0 ? (((this.state.good_week["sale_week_ostatok"] - this.state.good_week["sale_week_prodano"]/7*60)*0.5*7).toFixed())+" руб. заплатили за предыдущею неделю" : "Ничего не платим"} </b>
               </p>
               <p>
                 Категория: <b>{this.state.good["category"]}</b>
@@ -647,8 +702,11 @@ export class Good extends React.Component {
                 )}
               </table>
             </div>
+
+            
           </div>
         </div>
+        
 
         <div className="clear">
           <div className="good_stats">

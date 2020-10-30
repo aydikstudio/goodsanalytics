@@ -89,7 +89,7 @@ if(isset($_GET)) {
 
 
     if($_GET['type'] == 'delete_shipment' ) {
-        $query = "DELETE FROM `shipment` WHERE `date`='".$_GET['date']."' and `company` = '".$company."'";
+        $query = "DELETE FROM `shipment` WHERE `date`='".$_GET['date']."'";
         $res = mysqli_query($mysqli, $query);
         echo "yes";
     }
@@ -97,13 +97,13 @@ if(isset($_GET)) {
 
 
     if($_GET['type'] == 'delete_sale' ) {
-        $query = "DELETE FROM `sale` WHERE `date`='".$_GET['date']."' and `company` = '".$company."'";
+        $query = "DELETE FROM `sale` WHERE `date`='".$_GET['date']."'";
         $res = mysqli_query($mysqli, $query);
         echo "yes";
     }
 
     if($_GET['type'] == 'delete_return' ) {
-        $query = "DELETE FROM `returned` WHERE `date`='".$_GET['date']."' and `company` = '".$company."'";
+        $query = "DELETE FROM `returned` WHERE `date`='".$_GET['date']."'";
         $res = mysqli_query($mysqli, $query);
         echo "yes";
     }

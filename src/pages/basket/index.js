@@ -141,6 +141,9 @@ export class Basket extends React.Component {
     return arr;
   }
 
+
+  
+
   submitFilter() {
     let new_goods = this.delModeldFromListOfDeletedModels(
       this.state.delected_model,
@@ -311,7 +314,7 @@ export class Basket extends React.Component {
     let good_array = [];
     let goods_new_array;
     if (localStorage.getItem("goods_order_"+this.state.company)) {
-      good_array = JSON.parse(localStorage.getItem("goods_order"));
+      good_array = JSON.parse(localStorage.getItem("goods_order_"+this.state.company));
     }
     goods_new_array = [...good_array, ...this.addGoodsUnic(good_array, this.state.filteredList)]
     localStorage.setItem("goods_order_"+this.state.company, JSON.stringify(goods_new_array));

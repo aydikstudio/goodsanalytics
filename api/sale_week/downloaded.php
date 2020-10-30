@@ -1,9 +1,9 @@
 <?php
 $uploaddir = '';
-$uploadfile = $uploaddir . basename("waitinglist.xlsx");
+$uploadfile = $uploaddir . basename("sale.xlsx");
 
-if($_FILES['downloadlistwaitingFile']) {
-    if (move_uploaded_file($_FILES['downloadlistwaitingFile']['tmp_name'], $uploadfile)) {
+if($_FILES['downloadsalefile']) {
+    if (move_uploaded_file($_FILES['downloadsalefile']['tmp_name'], $uploadfile)) {
         echo "yes";
     } else {
         echo "Возможная атака с помощью файловой загрузки!\n";
@@ -11,6 +11,7 @@ if($_FILES['downloadlistwaitingFile']) {
 } else {
     echo "Отправлен не файл";
 }
+
 
 
 

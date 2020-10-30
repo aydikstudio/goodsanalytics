@@ -41,7 +41,8 @@ if ($company == 'juveros') {
 } else if($company == 'ipalievkb') {
     $symbol = '_';
 }
-
+$company='ipalievkb';
+$symbol = '_';
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // require_once '../config/config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
@@ -9,23 +9,39 @@ require '../library/phpQuery.php';
 use \PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-$file = 'waitinglist.xlsx'; // файл для получения данных
+$file = 'sale_week.xlsx'; // файл для получения данных
 $excel = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);; // подключить Excel-файл
 $excel->setActiveSheetIndex(0); // получить данные из указанного листа
 
 $sheet = $excel->getActiveSheet();
 
+// $query ="UPDATE `downloaded_status` SET `status`=1 WHERE `name`= 'sale'";
+// $result = mysqli_query($mysqli, $query) or die("Ошибка " . mysqli_error($mysqli)); 
+// if(!$result) {
+//     echo "Ошибка";
+// }
+
 $arr = [];
+
 
 $company="";
 
-if(@$_GET['company']) {
+if($_GET['company']) {
     $company = $_GET['company'];
 }
 
-if(@$_POST['company']) {
+if($_POST['company']) {
     $company = $_POST['company'];
 }
+
+$symbol = '';
+$company='juveros';
+if ($company == 'juveros') {
+    $symbol = '/';
+} else if($company == 'ipalievkb') {
+    $symbol = '_';
+}
+
 
 
 foreach ($sheet->getRowIterator() as $row) {
@@ -37,18 +53,18 @@ foreach ($sheet->getRowIterator() as $row) {
         $value = $cell->getValue();
         if($cell != "name" && $cell != "phone") {
             if($arr_index == 0) {
-                $arr_item["wb_art"] =  $value;
+                $arr_item["sale_week_id"] =  strstr($value, $symbol, true);
                 $arr_index = 1;
             } 
-            
+
             else if ( $arr_index == 1){
-                $arr_item["sizes"] = $value;
+                $arr_item["sale_week_prodano"] = $value;
                 $arr_index = 2;
             }
 
+
             else if ( $arr_index == 2){
-                $arr_item["count"] = $value;
-                $arr_index = 3;
+                $arr_item["sale_week_ostatok"] = $value;
                 $arr_index = 0;
                 $ready = 1;
             }
@@ -68,7 +84,7 @@ foreach ($sheet->getRowIterator() as $row) {
 
 
  
-$result = $arr;
+$result = group_cell($arr);
 
 
 $arr1 = [];
@@ -79,25 +95,65 @@ foreach ($result as $row) {
 
 $json = json_fix_cyr(json_encode($arr1));
 
-
-$filename = '';
+$filename = 'sale_week.json';
 
 if(!empty($company)) {
-    $filename = 'waitinglist_'.$company.'.json';
+    $filename = 'sale_week_'.$company.'.json';
 } else {
-    $filename = 'waitinglist.json';
+    $filename = 'sale.json';
 }
 
 $f_hdl = fopen($filename, 'w');
 
 if(fwrite($f_hdl,$json)) {
+//     $query ="UPDATE `downloaded_status` SET `status`=0 WHERE `name`= 'sale'";
+// $result = mysqli_query($mysqli, $query) or die("Ошибка " . mysqli_error($mysqli)); 
+// if(!$result) {
+//     echo "Ошибка";
+// }
+
 echo "yes";
 }
 fclose($f_hdl);
 
 
 
+function group_cell($arr) {
+    $aggregated = [];
+    $aggregated['date'] = ['date' => date("d.m.Y")];
+    
+    foreach ($arr as $row) {
+        $id = $row['sale_week_id'];
+        $prodano = $row['sale_week_prodano'];
+        $ostatok = $row['sale_week_ostatok'];
+       
+        
+       $pp = 0;
 
+       
+       
+    
+        if (!@array_key_exists($id, $aggregated)) {
+
+
+            $aggregated[$id] = [
+                'sale_week_name' => trim($id),
+               'sale_week_prodano' => trim($prodano),
+               "sale_week_ostatok" => trim($ostatok)
+            ];
+    
+            continue;
+        }
+
+        $aggregated[$id]['sale_week_ostatok'] += $ostatok;
+        $aggregated[$id]['sale_week_prodano'] += $prodano;   
+    }
+
+    
+    return $aggregated;
+
+
+}
 
 function json_fix_cyr($json_str) {
     $cyr_chars = array (

@@ -33,6 +33,11 @@ export class Setting extends React.Component {
       downloaddeficitFile: null,
       statusDownloaddeficitFile: false,
       statusUpdatedeficitFile: false,
+
+      downloadTurnOverFile: null,
+      statusDownloadTurnOverFile: false,
+      statusUpdateTurnOverFile: false,
+
     };
 
     this.onSubmitFileSale = this.onSubmitFileSale.bind(this);
@@ -54,6 +59,13 @@ export class Setting extends React.Component {
     this.onChangeDeficit = this.onChangeDeficit.bind(this);
     this.uploadChangeDeficit = this.uploadChangeDeficit.bind(this);
     this.updateDataDeficit = this.updateDataDeficit.bind(this);
+
+
+    this.onSubmitTurnOver = this.onSubmitTurnOver.bind(this);
+    this.onChangeTurnOver = this.onChangeTurnOver.bind(this);
+    this.uploadChangeTurnOver = this.uploadChangeTurnOver.bind(this);
+    this.updateDataTurnOver = this.updateDataTurnOver.bind(this);
+
   }
 
 
@@ -296,6 +308,63 @@ export class Setting extends React.Component {
         })
     }
 
+
+
+    //Загрузка оборачиваемости
+    
+    async onSubmitTurnOver(e) {
+      e.preventDefault();
+      this.setState({statusDownloadTurnOverFile: true });
+      let res = await this.uploadChangeTurnOver(this.state.downloadTurnOverFile);
+    }
+  
+    onChangeTurnOver(e) {
+      this.setState({downloadTurnOverFile: e.target.files[0] });
+    }
+  
+    async uploadChangeTurnOver(downloadTurnOverFile) {
+      
+      const formData = new FormData();
+      let ref = this;
+      formData.append("downloadTurnOverFile", downloadTurnOverFile);
+  
+      return await axios
+        .post(url_ga_server + "turnover/downloaded.php", formData, {
+          headers: {
+            "Content-type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+            if (res.data == "yes") {
+              ref.setState({ statusDownloadTurnOverFile: false });
+              alert("Файл успешно загружен");
+            }
+        })
+    }
+  
+
+    updateDataTurnOver(e) {
+      let ref = this;
+      this.setState({ statusUpdateTurnOverFile: true });
+      axios
+        .get(url_ga_server + "turnover/turnover.php", {
+          params: {
+            company: this.state.company
+          }
+        })
+        .then(function (res) {
+          console.log(res.data);
+          if (res.data == "yes") {
+            console.log('ok');
+            ref.setState({ statusUpdateTurnOverFile: false });
+            alert("Данные обновлены");
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+    }
+
   render() {
     return (
       <div>
@@ -414,6 +483,32 @@ export class Setting extends React.Component {
             "Обновляются данные"
           )}
           <a href="https://goodsanalytics.aydikstudio.ru/file/deficit_example.xlsx" target="_blank" className="downloaded_ref">Скачать пример для загрузки</a>
+        </div>
+
+        <div class="block_downloaded">
+          <form onSubmit={this.onSubmitTurnOver}>
+            <h1>Загрузка файла "Оборачиваемости"</h1>
+            <br />
+            <input type="file" onChange={this.onChangeTurnOver} />
+            {this.state.statusDownloadTurnOverFile === false ? (
+              <button type="submit" className="downloadedButton">
+                Загрузка файлов
+              </button>
+            ) : (
+              "Файл грузиться"
+            )}
+          </form>
+          {this.state.statusUpdateTurnOverFile === false ? (
+            <button
+              type="submit"
+              className="downloadedButton"
+              onClick={this.updateDataTurnOver}
+            >
+              Обновить
+            </button> 
+          ) : (
+            "Обновляются данные"
+          )}
         </div>
       </div>
     );
