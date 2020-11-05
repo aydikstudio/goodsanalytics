@@ -186,7 +186,9 @@ export class Setting extends React.Component {
     this.setState({ statusUpdateorderFile: true });
     axios
       .get(url_ga_server + "preorder/order.php", {
-        'company': this.state.company
+        params: {
+          company: this.state.company
+        }
       })
       .then(function (res) {
         if (res.data == "yes") {

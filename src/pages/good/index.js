@@ -415,9 +415,6 @@ export class Good extends React.Component {
   }
 
   render() {
-    console.log('Остаток на начало:'+this.state.good_week["sale_week_ostatok"])
-    console.log('Продано за расчетный период:'+this.state.good_week["sale_week_prodano"])
-    console.log(((this.state.good_week["sale_week_ostatok"] - this.state.good_week["sale_week_prodano"]/7*60)*0.5*7).toFixed())
     return (
       <div>
         <div id="content">

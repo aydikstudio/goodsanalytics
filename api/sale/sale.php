@@ -35,14 +35,14 @@ if($_POST['company']) {
 }
 
 $symbol = '';
-
+$company='ipalievkb';
 if ($company == 'juveros') {
     $symbol = '/';
 } else if($company == 'ipalievkb') {
     $symbol = '_';
 }
-$company='ipalievkb';
-$symbol = '_';
+
+
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();

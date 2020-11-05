@@ -9,7 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import $ from "jquery";
 import axios from "axios";
-import {getNameOfCategory} from "../../utils/func.utils.js";
+import {getNameOfCategory, getNameOManager} from "../../utils/func.utils.js";
 import Modal_Export from "../../components/modal_export";
 
 
@@ -25,6 +25,7 @@ export class Choosed extends React.Component {
       goods: [],
       filteredList: [],
       orders: [],
+      users: ['aliev_aydemir', 'semenova_elena', 'silaeva_natalia'],
       isNotGoods: false,
       isNotSizes: false,
       isGoods: false,
@@ -98,6 +99,13 @@ export class Choosed extends React.Component {
       .then(function (response) {
         let data = response.data;
         self.setState({
+            data_all_goods: self.state.data_all_goods
+            .filter((item) => !item["date"])
+            .map((obj) => {
+              let new_data = data.find((item) => item["name"] === obj["name"]);
+              return { ...obj, ...new_data };
+            })
+            .filter((item) => item["will_postavlka_count"]),
             order: data,
             goods: self.state.data_all_goods
             .filter((item) => !item["date"])
@@ -145,6 +153,7 @@ export class Choosed extends React.Component {
   }
 
   delModeldFromListOfDeletedModels(arr_del, arr_all) {
+    let self = this;
     let arr = [];
     
      arr_all.map((obj) => {
@@ -157,9 +166,92 @@ export class Choosed extends React.Component {
         new_obj.is_delected = false;
         arr = [...arr, new_obj];
       }
-    });
+    })(self.getSaleWeek());;
     
     return arr;
+  }
+
+
+  async getSaleWeek() {
+    let self = this;
+    await axios
+      .get(url_ga_server + "sale_week/sale_week_"+this.state.company+".json")
+      .then(function (response) {
+        let data = response.data;
+        self.setState({
+          data_all_goods: self.state.data_all_goods.map((obj) => {
+            let new_data = data.find(
+              (item) => item["sale_week_name"] == obj["name"]
+            );
+            
+            return { ...obj, ...new_data };
+          }),
+          filteredList: self.state.filteredList.map((obj) => {
+            let new_data = data.find(
+              (item) => item["sale_week_name"] == obj["name"]
+            );
+            
+            return { ...obj, ...new_data };
+          })
+        })(self.getTurnOver());;
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+
+  async getTurnOver() {
+    let self = this;
+    await axios
+      .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
+      .then(function (response) {
+        let data = response.data;
+        self.setState({
+          data_all_goods: self.state.data_all_goods.map((obj) => {
+            let new_data = data.find(
+              (item) => item["wb_art"] == obj["wb_art"]
+            );
+            
+            return { ...obj, ...new_data };
+          }),
+          filteredList: self.state.filteredList.map((obj) => {
+            let new_data = data.find(
+              (item) => item["wb_art"] == obj["wb_art"]
+            );
+            
+            return { ...obj, ...new_data };
+          })
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+      this.getPay()
+  }
+
+
+  getPay() {
+    let self = this;
+    
+      this.setState({
+        data_all_goods:  self.state.data_all_goods.map((obj) => {
+          if (obj['days'] && obj['sale_week_ostatok'] && obj['sale_week_prodano'] ) {
+            obj['storage'] = obj['days'] > 60 ? parseInt(Math.abs((obj["sale_week_ostatok"] - obj["sale_week_prodano"]/7*60)*0.5*7).toFixed()) : 0
+          } else {
+            obj['storage'] = 0;
+          }
+          return { ...obj };
+        }),
+        filteredList: self.state.filteredList.map((obj) => {
+          if (obj['days'] && obj['sale_week_ostatok'] && obj['sale_week_prodano']) {
+            obj['storage'] = obj['days'] > 60 ? parseInt(Math.abs((obj["sale_week_ostatok"] - obj["sale_week_prodano"]/7*60)*0.5*7).toFixed()) : 0
+          }  else {
+            obj['storage'] = 0;
+          }
+          return { ...obj };
+        })
+      })
   }
 
 
@@ -227,13 +319,19 @@ export class Choosed extends React.Component {
   }
 
   submitFilter() {
-    let new_goods = this.state.filteredList;
 
+    
+    
+    let new_goods = this.state.data_all_goods;
+
+   
     if (this.state.isNotGoods) {
       new_goods = new_goods.filter(
         (item) => item["wb_retail"] == "Нет в наличии"
       );
     }
+
+    
 
     if (this.state.isGoods) {
       new_goods = new_goods.filter(
@@ -245,10 +343,16 @@ export class Choosed extends React.Component {
       new_goods = new_goods.filter((item) => item["wb_sizes"] instanceof Array);
     }
 
-    if (this.state.category !== "vse") {
+
+
+    if (this.state.category !== "vse" && !this.state.users.some(item => item == this.state.category)) {
       new_goods = new_goods.filter(
         (item) => item["category"] == this.state.category
       );
+    } 
+
+    if(this.state.category !== "vse" && this.state.users.some(item => item == this.state.category)) {
+       new_goods = getNameOManager(this.state.category, new_goods)
     }
 
     if (this.state.stone !== "vse") {
@@ -283,10 +387,13 @@ export class Choosed extends React.Component {
       );
     }
 
+    
+
     this.setState({
       goods: new_goods.filter((item) => !item["date"]),
       filteredList: new_goods.filter((item) => !item["date"]),
     });
+
   }
 
   filterList(e) {
@@ -444,6 +551,43 @@ export class Choosed extends React.Component {
         });
       }
     }
+
+    if (name == "Оборачиваемость") {
+      if (this.state.sortByTurnOver) {
+        this.state.filteredList.sort(function (a, b) {
+          return b["days"] - a["days"];
+        });
+        this.setState({
+          sortByTurnOver: !this.state.sortByTurnOver,
+        });
+      } else {
+        this.state.filteredList.sort(function (a, b) {
+          return a["days"] - b["days"];
+        });
+        this.setState({
+          sortByTurnOver: !this.state.sortByTurnOver,
+        });
+      }
+    }
+
+
+    if (name == "Плата за хранение") {
+      if (this.state.sortByStorage) {
+        this.state.filteredList.sort(function (a, b) {
+          return a['storage'] - b['storage']
+        });
+        this.setState({
+          sortByStorage: !this.state.sortByStorage,
+        });
+      } else {
+        this.state.filteredList.sort(function (a, b) {
+          return b['storage'] - a['storage']
+        });
+        this.setState({
+          sortByStorage: !this.state.sortByStorage,
+        });
+      }
+    }
   }
 
   render() {
@@ -500,6 +644,9 @@ export class Choosed extends React.Component {
                     {item}
                   </MenuItem>
                 ))}
+                <MenuItem value="aliev_aydemir">Алиев Айдемир</MenuItem>
+                <MenuItem value="semenova_elena">Семенова Елена</MenuItem>
+                <MenuItem value="silaeva_natalia">Силаева Наталья</MenuItem>
               </Select>
             </div>
             <div className="block_form_category">
@@ -595,6 +742,10 @@ export class Choosed extends React.Component {
                 Ответственный(ая): <b>{getNameOfCategory(this.state.category)}</b>
           </div>
 
+          <p>За прошлую неделю заплатили за хранение:  {this.state.filteredList.length > 0 ? this.state.filteredList
+                        .map((item) => item['storage'] || 0)
+                        .reduce((prev, curr) => prev + curr || 0) : '0'} руб.</p>
+
           <Modal_Export data={this.state.filteredList}/>
           
           <Button className="button_filter" onClick={this.submitFilter}>
@@ -627,6 +778,12 @@ export class Choosed extends React.Component {
                 <th name="sortByOstatok" onClick={(e) => this.sortOfGoods(e)}>
                   Остаток
                 </th>
+                <th name="sortByTurnOver" onClick={(e) => this.sortOfGoods(e)}>
+                  Оборачиваемость
+                </th>
+                <th name="sortByStorage" onClick={(e) => this.sortOfGoods(e)}>
+                  Плата за хранение
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -652,6 +809,8 @@ export class Choosed extends React.Component {
                   <td>{item["will_postavlka_count"]}</td>
                   <td>{item["pp"]} %</td>
                   <td>{item["ostatok"]} шт.</td>
+                  <td>{item["days"]} дн.</td>
+                  <td>{item["storage"] > 0 ?  item["storage"]+" руб.": "Ничего не платим"}</td>
                 </tr>
               )) : <h1>Нет записей</h1>}
             </tbody>
