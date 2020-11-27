@@ -41,10 +41,10 @@ export class Good extends React.Component {
       itogoSales: 0,
       itogoVozvrati: 0,
       orders: [],
-      turnoverlist: [{
+      turnoverlist: {
         status: 'нет данных',
-        days: 'нет данных'
-      }]
+        days: 0
+      }
     };
   }
 
@@ -201,9 +201,9 @@ export class Good extends React.Component {
       .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
-          turnoverlist: response.data.filter(
+          turnoverlist: [...this.state.turnoverlist, response.data.filter(
             (item) => item["wb_art"] == self.state.good_id
-          ),
+          )[0]],
         });
       })
       .catch(function (error) {
@@ -481,13 +481,13 @@ export class Good extends React.Component {
                 <b>{this.state.good["ostatok"]} шт.</b>
               </p>
               <p>
-                Оборачиваемость: <b>{this.state.turnoverlist[0]['days']} (дней)</b>
+                Оборачиваемость: <b>{this.state.turnoverlist['days']+" (дней)" || 'Нет'}</b>
               </p>
               <p>
-                Неликвид:  <b>{this.state.turnoverlist[0]['status']}</b>
+                Неликвид:  <b>{this.state.turnoverlist['status']}</b>
               </p>
               <p>
-                Ориентировочная стоимость за хранение:  <b>{this.state.turnoverlist[0]['days'] > 60 && this.state.good_week["sale_week_ostatok"] > 0 ? (((this.state.good_week["sale_week_ostatok"] - this.state.good_week["sale_week_prodano"]/7*60)*0.5*7).toFixed())+" руб. заплатили за предыдущею неделю" : "Ничего не платим"} </b>
+                Ориентировочная стоимость за хранение:  <b>{this.state.turnoverlist['days'] > 60 && this.state.good_week["sale_week_ostatok"] > 0 ? (((this.state.good_week["sale_week_ostatok"] - this.state.good_week["sale_week_prodano"]/7*60)*0.5*7).toFixed())+" руб. заплатили за предыдущею неделю" : "Ничего не платим"} </b>
               </p>
               <p>
                 Категория: <b>{this.state.good["category"]}</b>

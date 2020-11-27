@@ -28,7 +28,7 @@ if(isset($_GET)) {
     $type = $_GET['type'];
     
     if($type == "item_order_name") {
-        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' ORDER BY `order_id` DESC";
+        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' and `company` = '".$company."' ORDER BY `order_id` DESC";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
