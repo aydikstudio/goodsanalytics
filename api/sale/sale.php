@@ -1,5 +1,5 @@
 ﻿<?php
-// require_once '../config/config.php';
+// require '../config/config.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 ini_set("memory_limit","512M");
@@ -24,21 +24,21 @@ $sheet = $excel->getActiveSheet();
 $arr = [];
 
 
-$company="";
+$GLOBALS['company'] = '';
 
-if($_GET['company']) {
-    $company = $_GET['company'];
+if(@$_GET['company']) {
+    $GLOBALS['company'] = $_GET['company'];
 }
 
-if($_POST['company']) {
-    $company = $_POST['company'];
+if(@$_POST['company']) {
+    $GLOBALS['company'] = $_POST['company'];
 }
 
 $symbol = '';
-$company='ipalievkb';
-if ($company == 'juveros') {
+$GLOBALS['company']='juveros';
+if ($GLOBALS['company'] == 'juveros') {
     $symbol = '/';
-} else if($company == 'ipalievkb') {
+} else if($GLOBALS['company'] == 'ipalievkb') {
     $symbol = '_';
 }
 
@@ -58,44 +58,22 @@ foreach ($sheet->getRowIterator() as $row) {
             } 
             
             else if ( $arr_index == 1){
-                $arr_item["postavleno"] = $value;
+                $arr_item["wb_art"] = $value;
                 $arr_index = 2;
             }
 
             else if ( $arr_index == 2){
-                $arr_item["prodano"] = $value;
-                $arr_index = 3;
-            }
-            else if ( $arr_index == 3){
-                $arr_item["wb_art"] = $value;
-                $arr_index = 4;
-            }
-
-            else if ( $arr_index == 4){
                 $arr_item["category"] = $value;
-                $arr_index = 5;
+                $arr_index = 3;
+                
             }
 
-            // else if ( $arr_index == 5){
-            //     $arr_item["returned_whosaler"] = $value;
-            //     $arr_index = 6;
-            // }
-
-            // else if ( $arr_index == 6){
-            //     $arr_item["returned_from_client"] = $value;
-            //     $arr_index = 7;
-            // }
-
-            else if ( $arr_index == 5){
+            else if ( $arr_index == 3){
                 $arr_item["order"] = $value;
-                $arr_index = 6;
-            }
-
-            else if ( $arr_index == 6){
-                $arr_item["ostatok"] = $value;
                 $arr_index = 0;
                 $ready = 1;
             }
+
 
         }
         
@@ -149,23 +127,21 @@ fclose($f_hdl);
 function group_cell($arr) {
     $aggregated = [];
     $aggregated['date'] = ['date' => date("d.m.Y")];
-    
+
     foreach ($arr as $row) {
         $id = $row['id'];
-        $postavleno = $row['postavleno'];
-        $prodano = $row['prodano'];
         $wb_art = $row['wb_art'];
         $category = $row['category'];
         $order = $row['order'];
-        $ostatok = $row['ostatok'];
-       
-        
        $pp = 0;
-
-       
+       $postavleno = count_summ('shipment', $id);
+       $prodano = count_summ('sale', $id);
+       $ostatok = $postavleno-$prodano;
+      
        
     
         if (!@array_key_exists($id, $aggregated)) {
+         
             $wb_vstavka = '';
        $wb_metall = '';
        $wb_no_sizes = '';
@@ -223,9 +199,7 @@ function group_cell($arr) {
         $wb_all_sizes = "У данного изделия нет размеров";
     }
 
-       if($postavleno > 0) {
-           $pp = trim(round($prodano/$postavleno, 2)*100);
-       }
+    
             if(!empty($wb_retail) && !empty($weigth)) {
                 $wb_price_of_gramm = $wb_retail/$weigth;
             } 
@@ -235,10 +209,17 @@ function group_cell($arr) {
                 $wb_price_of_gramm = "Нет в наличии";
             }
 
+            
+            
+
+            if($postavleno > 0) {
+                $pp = trim(round($prodano/$postavleno, 2)*100);
+            }
+
             $aggregated[$id] = [
                 'name' => trim($id),
-               'postavleno' => trim($postavleno),
-               'prodano' => trim($prodano),
+               'postavleno' => @trim($postavleno),
+               'prodano' => @trim($prodano),
                'order' => trim($order),
                'pp' => $pp,
                'wb_art' => trim($wb_art),
@@ -251,17 +232,12 @@ function group_cell($arr) {
                "wb_no_sizes" => $wb_no_sizes,
                "wb_all_sizes" => $wb_all_sizes,
                "desc" => trim($desc),
-               "ostatok" => trim($ostatok),
+               "ostatok" => trim($postavleno-$prodano),
                "wb_reiting" => trim($wb_reiting)
             ];
     
             continue;
         }
-
-        $aggregated[$id]['ostatok'] += $ostatok;
-        $aggregated[$id]['order'] += $order;
-        $aggregated[$id]['postavleno'] += $postavleno;
-        $aggregated[$id]['prodano'] += $prodano;
         $aggregated[$id]['pp'] = 0;
 
         if($aggregated[$id]['postavleno'] > 0 )
@@ -325,6 +301,15 @@ function json_fix_cyr($json_str) {
     return $json_str;
 }
 
+
+function count_summ($table, $art) {
+        $mysqli = new mysqli('localhost', 'aydik', '12345678', 'goodsanalytics');
+        $query = "SELECT  SUM(count) FROM $table WHERE `name`='".$art."' and `company`='".$GLOBALS['company']."'";
+        $res = mysqli_query($mysqli, $query);
+        $result =  mysqli_fetch_assoc($res); 
+        return  (int)$result['SUM(count)'];
+        
+}
 // function parser_wb($file) {
 
 //     $doc = phpQuery::newDocument($file);
