@@ -6,6 +6,8 @@ ini_set("memory_limit","512M");
 ini_set('max_execution_time', 1800);
 require '../vendor/autoload.php';
 require '../library/phpQuery.php';
+require '../config/config.php';
+require '../config/settings.php';
 use \PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
@@ -17,24 +19,7 @@ $sheet = $excel->getActiveSheet();
 
 $arr = [];
 
-$company="";
 
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
-
-
-$symbol = '';
-
-if ($company == 'juveros') {
-    $symbol = '/';
-} else if($company == 'ipalievkb') {
-    $symbol = '_';
-}
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();
@@ -91,8 +76,8 @@ $json = json_fix_cyr(json_encode($arr1));
 
 $filename = 'deficit.json';
 
-if(!empty($company)) {
-    $filename = 'deficit_'.$company.'.json';
+if(!empty($company) && !empty($client) ) {
+    $filename = 'deficit_'.$client."_".$company.'.json';
 } else {
     $filename = 'deficit.json';
 }

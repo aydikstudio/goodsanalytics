@@ -1,18 +1,7 @@
 <?php
 session_start();
 require_once '../config/config.php';
-
-
-$company="";
-
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
-
+require '../config/settings.php';
 
 if(isset($_GET)) {
 
@@ -22,7 +11,7 @@ if(isset($_GET)) {
 
 
     if($type == "item_hypothesis") {
-        $query = "SELECT * FROM `hypothesis` WHERE hyp_id=".$_GET['item']." and company='".$company."'  order by hyp_id desc";
+        $query = "SELECT * FROM `hypothesis` WHERE hyp_id=".$_GET['item']." and company='".$company."' and client='".$client."'  order by hyp_id desc";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -35,7 +24,7 @@ if(isset($_GET)) {
 
 
     if($type == "all_hypothesis") {
-        $query = "SELECT * FROM hypothesis WHERE company='".$company."' order by hyp_id desc";
+        $query = "SELECT * FROM hypothesis WHERE company='".$company."' and client='".$client."' order by hyp_id desc";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -47,7 +36,7 @@ if(isset($_GET)) {
     }
 
     if($type == "good_hypothesis") {
-        $query = "SELECT * FROM hypothesis WHERE wb_art=".$_GET['item']." and company='".$company."' order by hyp_id desc";
+        $query = "SELECT * FROM hypothesis WHERE wb_art=".$_GET['item']." and company='".$company."' and client='".$client."' order by hyp_id desc";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -59,7 +48,7 @@ if(isset($_GET)) {
     }
 
     if($type == "delete_hypothesis") {
-        $query_del = "DELETE FROM hypothesis WHERE hyp_id=".$_GET['item'];
+        $query_del = "DELETE FROM hypothesis WHERE  client='".$client."' and hyp_id=".$_GET['item'];
         $res_del = mysqli_query($mysqli, $query_del);
         
         if($res_del) {

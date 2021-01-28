@@ -1,5 +1,7 @@
 <?php 
 require '../vendor/autoload.php';
+require_once '../config/config.php';
+require '../config/settings.php';
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 

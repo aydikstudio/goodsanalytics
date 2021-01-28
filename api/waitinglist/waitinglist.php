@@ -6,6 +6,7 @@ ini_set("memory_limit","512M");
 ini_set('max_execution_time', 1800);
 require '../vendor/autoload.php';
 require '../library/phpQuery.php';
+require '../config/settings.php';
 use \PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
@@ -17,15 +18,7 @@ $sheet = $excel->getActiveSheet();
 
 $arr = [];
 
-$company="";
 
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
 
 
 foreach ($sheet->getRowIterator() as $row) {
@@ -83,7 +76,7 @@ $json = json_fix_cyr(json_encode($arr1));
 $filename = '';
 
 if(!empty($company)) {
-    $filename = 'waitinglist_'.$company.'.json';
+    $filename = 'waitinglist_'.$client.'_'.$company.'.json';
 } else {
     $filename = 'waitinglist.json';
 }

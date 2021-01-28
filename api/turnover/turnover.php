@@ -6,6 +6,7 @@ ini_set("memory_limit","512M");
 ini_set('max_execution_time', 1800);
 require '../vendor/autoload.php';
 require '../library/phpQuery.php';
+require '../config/settings.php';
 use \PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
@@ -16,16 +17,6 @@ $excel->setActiveSheetIndex(0); // получить данные из указа
 $sheet = $excel->getActiveSheet();
 
 $arr = [];
-
-$company="";
-
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
 
 
 

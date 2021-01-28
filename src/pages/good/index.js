@@ -14,6 +14,7 @@ export class Good extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb",
       good_week: {
         sale_week_ostatok: 0,
         sale_week_prodano: 0
@@ -52,7 +53,7 @@ export class Good extends React.Component {
     const self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
+      .get(url_ga_server + "sale/sale_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           good: response.data.filter(
@@ -68,12 +69,13 @@ export class Good extends React.Component {
       });
 
       
-
+     
 
     await axios
       .get(url_ga_server + "report/report_data.php", {
         params: {
           name: this.state.good_name,
+          client: this.state.client,
           type: "shipment",
           company: this.state.company
         },
@@ -95,6 +97,7 @@ export class Good extends React.Component {
       .get(url_ga_server + "report/report_data.php", {
         params: {
           name: this.state.good_name,
+          client: this.state.client,
           type: "sale",
           company: this.state.company
         },
@@ -116,6 +119,7 @@ export class Good extends React.Component {
       .get(url_ga_server + "report/report_data.php", {
         params: {
           name: this.state.good_name,
+          client: this.state.client,
           type: "return",
           company: this.state.company
         },
@@ -138,6 +142,7 @@ export class Good extends React.Component {
         params: {
           type: "good_hypothesis",
           item: this.state.good_id,
+          client: this.state.client,
           company: this.state.company
         },
       })
@@ -154,6 +159,7 @@ export class Good extends React.Component {
         params: {
           type: "item_order_name",
           name: this.state.good_name,
+          client: this.state.client,
           company: this.state.company
         },
       })
@@ -168,7 +174,7 @@ export class Good extends React.Component {
       });
 
     await axios
-      .get(url_ga_server + "waitinglist/waitinglist_"+this.state.company+".json")
+      .get(url_ga_server + "waitinglist/waitinglist _"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           waitinglist: response.data.filter(
@@ -182,7 +188,7 @@ export class Good extends React.Component {
 
 
     await axios
-      .get(url_ga_server + "deficit/deficit_"+this.state.company+".json")
+      .get(url_ga_server + "deficit/deficit _"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           deficites: response.data.filter(
@@ -198,7 +204,7 @@ export class Good extends React.Component {
       });
 
       await axios
-      .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
+      .get(url_ga_server + "turnover/turnover _"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         self.setState({
           turnoverlist: [...this.state.turnoverlist, response.data.filter(
@@ -213,9 +219,8 @@ export class Good extends React.Component {
 
 
       await axios
-      .get(url_ga_server + "sale_week/sale_week_"+this.state.company+".json")
+      .get(url_ga_server + "sale_week/sale_week _"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
-        console.log()
         self.setState({
           good_week: response.data.filter(
             (item) => item["sale_week_name"] == self.state.good_name
@@ -236,7 +241,9 @@ export class Good extends React.Component {
   getInfo = () => {
 
     const self_img = this;
-    axios
+    
+    if(this.state.client == "wb") {
+      axios
       .get(
         url_ga_server + "parser_img.php?art=" + self_img.state.good["wb_art"]
       )
@@ -251,9 +258,13 @@ export class Good extends React.Component {
       })
       .then(function () {});
 
+    } else {
+      this.state.img = self_img.state.good["url"];
+    }
+    
     axios
       .get(
-        url_ga_server + "good/check_good.php?check_name=" + this.state.good_name
+        url_ga_server + "good/check_good.php?check_name=" + this.state.good_name+"&client="+this.state.client
       )
       .then(function (response) {
         self_img.setState({
@@ -270,7 +281,7 @@ export class Good extends React.Component {
     const self = this;
     axios
       .get(
-        url_ga_server + "good/check_good.php?act_name=" + this.state.good_name
+        url_ga_server + "good/check_good.php?act_name=" + this.state.good_name+"&client="+this.state.client
       )
       .then(function (response) {
         self.setState({
@@ -371,8 +382,8 @@ export class Good extends React.Component {
   }
 
   checkBasket() {
-    if (localStorage.getItem("goods_basket_"+this.state.company)) {
-      let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company));
+    if (localStorage.getItem("goods_basket_"+this.state.client+"_"+this.state.company)) {
+      let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.client+"_"+this.state.company));
       if (
         good_array.some((good_item) => good_item.name == this.state.good.name)
       ) {
@@ -389,24 +400,24 @@ export class Good extends React.Component {
 
   addBasket() {
     if (this.state.status_backet_good == 0) {
-      if (localStorage.getItem("goods_basket_"+this.state.company)) {
-        let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company));
+      if (localStorage.getItem("goods_basket_"+this.state.client+"_"+this.state.company)) {
+        let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.client+"_"+this.state.company));
         good_array.push(this.state.good);
-        localStorage.setItem("goods_basket_"+this.state.company, JSON.stringify(good_array));
+        localStorage.setItem("goods_basket_"+this.state.client+"_"+this.state.company, JSON.stringify(good_array));
       } else {
         let good_array = [];
         good_array.push(this.state.good);
-        localStorage.setItem("goods_basket_"+this.state.company, JSON.stringify(good_array));
+        localStorage.setItem("goods_basket_"+this.state.client+"_"+this.state.company, JSON.stringify(good_array));
       }
       this.setState({
         status_backet_good: 1,
       });
     } else {
-      let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.company));
+      let good_array = JSON.parse(localStorage.getItem("goods_basket_"+this.state.client+"_"+this.state.company));
       good_array = good_array.filter(
         (item) => item.name != this.state.good["name"]
       );
-      localStorage.setItem("goods_basket_"+this.state.company, JSON.stringify(good_array));
+      localStorage.setItem("goods_basket_"+this.state.client+"_"+this.state.company, JSON.stringify(good_array));
 
       this.setState({
         status_backet_good: 0,
@@ -427,10 +438,10 @@ export class Good extends React.Component {
                 Артикул: <b>{this.state.good["name"]}</b>
               </p>
               <p>
-                Артикул WB:{" "}
+                Артикул МаркетПлейса:{" "}
                 <b>
                   <a
-                    href={`https://www.wildberries.ru/catalog/${this.state.good["wb_art"]}/detail.aspx`}
+                    href={this.state.company == "wb" ? `https://www.wildberries.ru/catalog/${this.state.good["wb_art"]}/detail.aspx` : `https://www.ozon.ru/context/detail/id/${this.state.good["wb_art"]}/`}
                     target="_blank"
                     className="link_a_red"
                   >
@@ -460,18 +471,9 @@ export class Good extends React.Component {
               <p>
                 Процент продаваемости:{" "}
                 <b>
-                  {this.state.good["pp"] == "NaN" ? 0 : this.state.good["pp"]}%
+                  {this.state.good["postavleno"] == 0  ? 0 : this.state.good["pp"]}%
                 </b>
               </p>
-              
-              {/* <p>
-                Вернули поставщику:{" "}
-                <b>{this.state.good["returned_whosaler"]} шт.</b>
-              </p>
-              <p>
-                Вернули клиенты:{" "}
-                <b>{this.state.good["returned_from_client"]} шт.</b>
-              </p> */}
               <p>
                 Заказано: <b>{this.state.good["order"]} шт.</b>
               </p>
@@ -669,7 +671,7 @@ export class Good extends React.Component {
             </div>
 
             <div className="good_stat">
-              <b>Лист ожидания WB</b>
+              <b>Лист ожидания</b>
               <table border="1">
                 <tr>
                   <th>Размер</th>
@@ -708,7 +710,7 @@ export class Good extends React.Component {
         <div className="clear">
           <div className="good_stats">
             <div className="good_stat">
-              <b>Дефицит WB</b>
+              <b>Дефицит</b>
               <table border="1">
                 <tr>
                   <th>Размер</th>

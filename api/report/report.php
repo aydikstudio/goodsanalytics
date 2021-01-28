@@ -1,5 +1,6 @@
 <?php
 require_once '../config/config.php';
+require '../config/settings.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 ini_set("memory_limit","512M");
@@ -23,25 +24,7 @@ $excel->setActiveSheetIndex(0); // получить данные из указа
 
 $sheet = $excel->getActiveSheet();
 
-$company="";
 
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
-
-
-
-$symbol = '';
-
-if ($company == 'juveros') {
-    $symbol = '/';
-} else if($company == 'ipalievkb') {
-    $symbol = '_';
-}
 
 $arr = [];
 
@@ -181,7 +164,7 @@ $type = $_POST["type"];
 
 if($type == "shipment") {
     for ($x=0; $x<count($arr1); $x++) {
-        $query_add = "INSERT INTO `shipment`(`name`, `count`, `date`, `company`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."')";
+        $query_add = "INSERT INTO `shipment`(`name`, `count`, `date`, `company`, `client`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."', '".$client."')";
         $res_add = mysqli_query($mysqli, $query_add);
     }
 }
@@ -189,14 +172,14 @@ if($type == "shipment") {
 
 if($type == "sale") {
     for ($x=0; $x<count($arr1); $x++) {
-        $query_add = "INSERT INTO `sale`(`name`, `count`, `date`, `company`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."')";
+        $query_add = "INSERT INTO `sale`(`name`, `count`, `date`, `company`, `client`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."', '".$client."')";
         $res_add = mysqli_query($mysqli, $query_add);
     }
 }
 
 if($type == "return") {
     for ($x=0; $x<count($arr1); $x++) {
-        $query_add = "INSERT INTO `returned`(`name`, `count`, `date`, `company`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."')";
+        $query_add = "INSERT INTO `returned`(`name`, `count`, `date`, `company`, `client`) VALUES ('".$arr1[$x]['name']."', '".$arr1[$x]['count']."', '".$arr1[$x]['date']."', '".$company."', '".$client."')";
         $res_add = mysqli_query($mysqli, $query_add);
     }
 }

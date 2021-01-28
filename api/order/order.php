@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../config/config.php';
+require '../config/settings.php';
 require '../vendor/autoload.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
@@ -9,16 +10,6 @@ ini_set('max_execution_time', 1800);
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
-$company="";
-
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
 
 
 if(isset($_GET)) {
@@ -32,7 +23,7 @@ if(isset($_GET)) {
     }
 
     if($type == "item_order") {
-        $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item']."'";
+        $query = "SELECT * FROM `order` WHERE order_id=".$_GET['item']."' and company='".$company."' and client='".$client."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -45,7 +36,7 @@ if(isset($_GET)) {
 
 
     if($type == "number_order") {
-        $query = "SELECT * FROM `order` WHERE `number_order`=".$_GET['name'];
+        $query = "SELECT * FROM `order` WHERE `number_order`=".$_GET['name']." and company='".$company."' and client='".$client."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -57,7 +48,7 @@ if(isset($_GET)) {
     }
 
     if($type == "all_orders") {
-        $query = "SELECT DISTINCT `number_order`, `user_login`, `status_order`, `date` FROM `order` WHERE company='".$company."'  ORDER BY 'status_order' DESC";
+        $query = "SELECT DISTINCT `number_order`, `user_login`, `status_order`, `date` FROM `order` WHERE company='".$company."' and client='".$client."'  ORDER BY 'status_order' DESC";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         
@@ -71,7 +62,7 @@ if(isset($_GET)) {
 
     if($type == "update_status") {
         if ($_GET['status'] == 'delete') {
-            $query = "DELETE FROM `order` WHERE `number_order`=".$_GET['number_order'];
+            $query = "DELETE FROM `order` WHERE `number_order`=".$_GET['number_order']." and company='".$company."' and client='".$client."'";;
             unlink('files/'.$_GET['number_order'].'.xls');
             $res = mysqli_query($mysqli, $query);
             echo 0;
@@ -106,8 +97,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`, `date`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."', '".$date."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`, `date`, 'client')
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."', '".$date."', '".$client."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -148,8 +139,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `accept_count`, `comment`, `status_order`, `user_login`, `company`, `date`)
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['accept_count']."', '".$value[$i]['comment']."', '".$status_order."', '".$user_login."', '".$company1."', '".$date."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `accept_count`, `comment`, `status_order`, `user_login`, `company`, `date`, 'client')
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['accept_count']."', '".$value[$i]['comment']."', '".$status_order."', '".$user_login."', '".$company1."', '".$date."', '".$client."')";
             mysqli_query($mysqli, $query_add);
         }
 

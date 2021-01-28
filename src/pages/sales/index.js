@@ -19,6 +19,7 @@ export class Sales extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb",
       data_all_goods: [],
       goods: [],
       filteredList: [],
@@ -56,7 +57,7 @@ export class Sales extends React.Component {
     let self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
+      .get(url_ga_server + "sale/sale_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -91,7 +92,11 @@ export class Sales extends React.Component {
   getDeletedModels() {
     let self = this;
     axios
-      .get(url_ga_server + "good/goods_deleted.php")
+      .get(url_ga_server + "good/goods_deleted.php", {
+        params: {
+          client: this.state.client
+        },
+      })
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -125,7 +130,7 @@ export class Sales extends React.Component {
   async getSaleWeek() {
     let self = this;
     await axios
-      .get(url_ga_server + "sale_week/sale_week_"+this.state.company+".json")
+      .get(url_ga_server + "sale_week/sale_week_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -154,7 +159,7 @@ export class Sales extends React.Component {
   async getTurnOver() {
     let self = this;
     await axios
-      .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
+      .get(url_ga_server + "turnover/turnover_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({

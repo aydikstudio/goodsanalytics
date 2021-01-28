@@ -1,5 +1,6 @@
 <?php
 require_once '../config/config.php';
+require '../config/settings.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 ini_set("memory_limit","512M");
@@ -9,9 +10,7 @@ require '../library/phpQuery.php';
 use \PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
-
-
-$file = 'order.xlsx'; // файл для получения данных
+$file = 'order_'".$client."'_"'.$company.'".xlsx'; // файл для получения данных
 
 $excel = \PhpOffice\PhpSpreadsheet\IOFactory::load($file); // подключить Excel-файл
 $excel->setActiveSheetIndex(0); // получить данные из указанного листа
@@ -22,15 +21,10 @@ $sheet = $excel->getActiveSheet();
 
 $arr = [];
 
-$company="";
 
-if(@$_GET['company']) {
-    $company = $_GET['company'];
-}
 
-if(@$_POST['company']) {
-    $company = $_POST['company'];
-}
+
+
 
 
 

@@ -44,6 +44,7 @@ export class Login extends React.Component {
                 localStorage.setItem('name', response.data);
                 localStorage.setItem('login', dostup.login);
                 localStorage.setItem('company', "juveros");
+                localStorage.setItem('client', "wb");
                 window.location.reload();
             }
 

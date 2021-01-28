@@ -10,11 +10,14 @@ export class Header extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      company: localStorage.getItem('company') || "juveros"
-    }
+      company: localStorage.getItem("company") || "juveros",
+      client: localStorage.getItem("client") || "wb"
+    };
 
     this.exitAutho = this.exitAutho.bind(this);
     this.selectCompany = this.selectCompany.bind(this);
+    this.selectClient = this.selectClient.bind(this);
+    this.checkHaveContract = this.checkHaveContract.bind(this);
   }
 
   async exitAutho() {
@@ -25,11 +28,33 @@ export class Header extends React.Component {
 
   selectCompany(event) {
     const target = event.target;
-    localStorage.setItem('company', target.value);
-    window.location.reload();
+    if(this.checkHaveContract(target.value, this.state.client)) {
+      localStorage.setItem("company", target.value);
+      window.location.reload();
+    } else {
+      alert("Между данными контрагентами нет договора.");
+    }
   }
 
+  selectClient(event) {
+    const target = event.target;
+    if(this.checkHaveContract(this.state.company, target.value)) {
+      localStorage.setItem("client", target.value);
+      window.location.reload();
+    } else {
+      alert("Между данными контрагентами нет договора.");
+    }
+    
+  }
 
+  checkHaveContract(company, client) {
+    if((company == 'juveros' && client == 'wb') || (company == 'ipalievkb' && client == 'wb') || (company == 'ipalievkb' && client == 'ozon')) {
+      return true;
+    } 
+    else {
+      return false;
+    }
+  }
 
   render() {
     return (
@@ -89,11 +114,30 @@ export class Header extends React.Component {
                   </a>
                 </li>
                 <li>
-                  <Select value={this.state.company} name="company" onChange={this.selectCompany}>
-                    <MenuItem selected value="juveros">Юверос</MenuItem>
+                  <Select
+                    value={this.state.company}
+                    name="company"
+                    onChange={this.selectCompany}
+                  >
+                    <MenuItem selected value="juveros">
+                      Юверос
+                    </MenuItem>
                     <MenuItem value="ipalievkb">ИП Алиев КБ</MenuItem>
                   </Select>
                 </li>
+                <li>
+                  <Select
+                    value={this.state.client}
+                    name="client"
+                    onChange={this.selectClient}
+                  >
+                    <MenuItem selected value="wb">
+                      Wildberries
+                    </MenuItem>
+                    <MenuItem value="ozon">Ozon</MenuItem>
+                  </Select>
+                </li>
+
                 <Button onClick={this.exitAutho}>Выйти</Button>
               </ul>
             </nav>

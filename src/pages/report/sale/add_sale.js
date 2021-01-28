@@ -17,6 +17,7 @@ export class Add_sale extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb ",
       downloadreportFile: null,
       statusdownloadreportFile: false,
       statusUpdatereportFile: false,
@@ -45,6 +46,7 @@ export class Add_sale extends React.Component {
     formData.append("date", this.state.date);
     formData.append("type", "sale");
     formData.append("company", this.state.company);
+    formData.append("client", this.state.client);
 
     return await axios
       .post(url_ga_server + "report/report.php", formData, {

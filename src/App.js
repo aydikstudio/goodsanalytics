@@ -34,7 +34,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div className="App">
-        {this.state.auth == 1 ? <Pages /> : <Login />}
+        {this.state.auth == 0 ? <Pages /> : <Login />}
       </div>
     );
   }

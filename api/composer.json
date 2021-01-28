@@ -1,6 +1,19 @@
 {
     "require": {
         "phpoffice/phpspreadsheet": "^1.11",
-        "rackspace/php-opencloud": "dev-master"
+        "rackspace/php-opencloud": "dev-master",
+        "guzzlehttp/guzzle": "^6.5",
+        "jonnyw/php-phantomjs": "4.*"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "PhantomInstaller\\Installer::installPhantomJS"
+        ],
+        "post-update-cmd": [
+            "PhantomInstaller\\Installer::installPhantomJS"
+        ]
     }
 }

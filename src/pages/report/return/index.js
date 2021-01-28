@@ -8,6 +8,7 @@ export class Return_report extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb ",
       goods: []
     };
   }
@@ -19,7 +20,8 @@ export class Return_report extends React.Component {
       params: {
         name: this.state.good_name,
         type: "all_return",
-        company: this.state.company
+        company: this.state.company,
+        client: this.state.client
       },
     })
     .then(function (response) {
@@ -44,6 +46,7 @@ export class Return_report extends React.Component {
       params: {
         date: value,
         type: "delete_return",
+        client: this.state.client
       },
     })
     .then(function (response) {

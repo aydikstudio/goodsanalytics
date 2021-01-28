@@ -21,6 +21,7 @@ export class Choosed extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb ",
       data_all_goods: [],
       goods: [],
       filteredList: [],
@@ -62,7 +63,7 @@ export class Choosed extends React.Component {
     let self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
+      .get(url_ga_server + "sale/sale_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -95,7 +96,7 @@ export class Choosed extends React.Component {
   getOrderData() {
     let self = this;
     axios
-      .get(url_ga_server + "preorder/order_"+this.state.company+".json")
+      .get(url_ga_server + "preorder/order_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -175,7 +176,7 @@ export class Choosed extends React.Component {
   async getSaleWeek() {
     let self = this;
     await axios
-      .get(url_ga_server + "sale_week/sale_week_"+this.state.company+".json")
+      .get(url_ga_server + "sale_week/sale_week_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -204,7 +205,7 @@ export class Choosed extends React.Component {
   async getTurnOver() {
     let self = this;
     await axios
-      .get(url_ga_server + "turnover/turnover_"+this.state.company+".json")
+      .get(url_ga_server + "turnover/turnover_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({

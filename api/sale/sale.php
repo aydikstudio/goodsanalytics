@@ -6,8 +6,10 @@ ini_set("memory_limit","512M");
 ini_set('max_execution_time', 1800);
 require '../vendor/autoload.php';
 require '../library/phpQuery.php';
-use \PhpOffice\PhpSpreadsheet\Shared\Date;
+require '../config/settings.php';
 
+use \PhpOffice\PhpSpreadsheet\Shared\Date;
+use JonnyW\PhantomJs\Client;
 
 $file = 'sale.xlsx'; // файл для получения данных
 $excel = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);; // подключить Excel-файл
@@ -24,7 +26,7 @@ $sheet = $excel->getActiveSheet();
 $arr = [];
 
 
-$GLOBALS['company'] = '';
+
 
 if(@$_GET['company']) {
     $GLOBALS['company'] = $_GET['company'];
@@ -34,15 +36,23 @@ if(@$_POST['company']) {
     $GLOBALS['company'] = $_POST['company'];
 }
 
-$symbol = '';
-$GLOBALS['company']='juveros';
-if ($GLOBALS['company'] == 'juveros') {
-    $symbol = '/';
-} else if($GLOBALS['company'] == 'ipalievkb') {
-    $symbol = '_';
+
+if(@$_GET['client']) {
+    $GLOBALS['client'] = $_GET['client'];
+}
+
+if(@$_POST['client']) {
+    $GLOBALS['client'] = $_POST['client'];
 }
 
 
+$GLOBALS['company']=$company;
+$GLOBALS['client']=$client;
+
+
+
+
+if($client=="wb") {
 
 foreach ($sheet->getRowIterator() as $row) {
     $cellIterator = $row->getCellIterator();
@@ -90,7 +100,7 @@ foreach ($sheet->getRowIterator() as $row) {
 
 
  
-$result = group_cell($arr);
+$result = group_cell_wb($arr);
 
 
 $arr1 = [];
@@ -104,27 +114,106 @@ $json = json_fix_cyr(json_encode($arr1));
 $filename = 'sale.json';
 
 if(!empty($company)) {
-    $filename = 'sale_'.$company.'.json';
+    echo "OK";
+    $filename = 'sale_'.$client.'_'.$company.'.json';
 } else {
+    echo "NO";
     $filename = 'sale.json';
 }
 
 $f_hdl = fopen($filename, 'w');
 
 if(fwrite($f_hdl,$json)) {
-//     $query ="UPDATE `downloaded_status` SET `status`=0 WHERE `name`= 'sale'";
-// $result = mysqli_query($mysqli, $query) or die("Ошибка " . mysqli_error($mysqli)); 
-// if(!$result) {
-//     echo "Ошибка";
-// }
-
 echo "yes";
 }
+
 fclose($f_hdl);
 
 
 
-function group_cell($arr) {
+
+}
+else if ($client== 'ozon') {
+    foreach ($sheet->getRowIterator() as $row) {
+        $cellIterator = $row->getCellIterator();
+        $arr_index = 0;
+        $ready = 0;
+        
+        foreach ($cellIterator as $cell) {
+            $value = $cell->getValue();
+            if($cell != "name" && $cell != "phone") {
+                if($arr_index == 0) {
+                    $arr_item["id"] =  $value;
+                    $arr_index = 1;
+                } 
+                
+                else if ( $arr_index == 1){
+                    $arr_item["wb_art"] = $value;
+                    $arr_index = 2;
+                }
+    
+                else if ( $arr_index == 2){
+                    $arr_item["category"] = $value;
+                    $arr_index = 3;
+                    
+                }
+
+                else if ( $arr_index == 3){
+                    $arr_item["count"] = $value;
+                    $arr_index = 4;                   
+                }
+    
+                else if ( $arr_index == 4){
+                    $arr_item["wb_retail"] = $value;
+                    $arr_index = 0;
+                    $ready = 1;                  
+                }
+            }
+            
+            if($ready == 1) {
+                array_push($arr, $arr_item);
+            }
+            
+            
+           
+        }
+    
+    }
+    
+    
+    
+     
+    $result = group_cell_ozon($arr);
+    
+    
+    $arr1 = [];
+    
+    foreach ($result as $row) {
+        array_push($arr1, $row);
+    }
+    
+    $json = json_fix_cyr(json_encode($arr1));
+    
+    $filename = 'sale.json';
+    
+    if(!empty($company)) {
+        $filename = 'sale_'.$client.'_'.$company.'.json';
+    } else {
+        $filename = 'sale.json';
+    }
+    
+    $f_hdl = fopen($filename, 'w');
+    
+    if(fwrite($f_hdl,$json)) {
+    echo "yes";
+    }
+    fclose($f_hdl);
+    
+    
+}
+
+
+function group_cell_wb($arr) {
     $aggregated = [];
     $aggregated['date'] = ['date' => date("d.m.Y")];
 
@@ -136,7 +225,8 @@ function group_cell($arr) {
        $pp = 0;
        $postavleno = count_summ('shipment', $id);
        $prodano = count_summ('sale', $id);
-       $ostatok = $postavleno-$prodano;
+       $returned = count_summ('returned', $id);
+       $ostatok = $postavleno-$prodano-$returned;
       
        
     
@@ -232,7 +322,7 @@ function group_cell($arr) {
                "wb_no_sizes" => $wb_no_sizes,
                "wb_all_sizes" => $wb_all_sizes,
                "desc" => trim($desc),
-               "ostatok" => trim($postavleno-$prodano),
+               "ostatok" => trim($ostatok),
                "wb_reiting" => trim($wb_reiting)
             ];
     
@@ -251,6 +341,88 @@ function group_cell($arr) {
 
 
 }
+
+
+function group_cell_ozon($arr) {
+
+
+
+
+    $aggregated = [];
+    $aggregated['date'] = ['date' => date("d.m.Y")];
+    $wb_all_sizes = [];
+    $wb_no_sizes = [];
+    foreach ($arr as $row) {
+        $id = $row['id'];
+        $items = [];
+        $item_id = explode("/", $id);
+        $wb_art = $row['wb_art'];
+        $category = $row['category'];
+        $wb_retail = $row['wb_retail'];
+        $count = $row['count'];
+       $pp = 0;
+       $postavleno = count_summ('shipment', $item_id[0]);
+       $prodano = count_summ('sale', $item_id[0]);
+       $returned = count_summ('returned', $item_id[0]);
+       $ostatok = $postavleno-$prodano-$returned;
+       
+       if($count > 0) {
+        $wb_all_sizes[$item_id[0]][]= $item_id[1];
+    } else {
+        $wb_no_sizes[$item_id[0]][]= $item_id[1];
+    }
+
+
+       
+    
+        if (!@array_key_exists($item_id[0], $aggregated)) {
+            $url = 'https://www.ozon.ru/context/detail/id/'.$wb_art.'/';
+            $file = file_get_contents($url);
+            $doc = phpQuery::newDocument($file);
+            if($postavleno > 0) {
+                $pp = trim(round($prodano/$postavleno, 2)*100);
+            }
+
+            $url_1 = $doc->find('.ao5')->attr('src');
+
+            $aggregated[$item_id[0]] = [
+                'name' => trim($item_id[0]),
+               'postavleno' => @trim($postavleno),
+               'prodano' => @trim($prodano),
+               'pp' => $pp,
+               'wb_art' => trim($wb_art),
+               'category' => trim($category),
+               'wb_retail' => trim($wb_retail),
+               "ostatok" => trim($ostatok),
+               "url" => $url_1
+            ];
+    
+            continue;
+        }
+
+
+        if(@count($wb_no_sizes[$item_id[0]]) > 0) {
+            $aggregated[$item_id[0]]["wb_no_sizes"] = $wb_no_sizes[$item_id[0]];
+        } else {
+            $aggregated[$item_id[0]]["wb_no_sizes"] = [];
+        }
+
+        if(@count($wb_all_sizes[$item_id[0]]) > 0) {
+            $aggregated[$item_id[0]]["wb_all_sizes"] = $wb_all_sizes[$item_id[0]];
+        } else {
+            $aggregated[$item_id[0]]["wb_all_sizes"] = [];
+        }
+     
+    }
+
+
+
+    return $aggregated;
+
+}
+
+
+
 
 function json_fix_cyr($json_str) {
     $cyr_chars = array (
@@ -304,10 +476,17 @@ function json_fix_cyr($json_str) {
 
 function count_summ($table, $art) {
         $mysqli = new mysqli('localhost', 'aydik', '12345678', 'goodsanalytics');
-        $query = "SELECT  SUM(count) FROM $table WHERE `name`='".$art."' and `company`='".$GLOBALS['company']."'";
+        $query = "SELECT  SUM(count) FROM $table WHERE `name`='".$art."' and `company`='".$GLOBALS['company']."' and `client` = '".$GLOBALS['client']."'";
         $res = mysqli_query($mysqli, $query);
-        $result =  mysqli_fetch_assoc($res); 
-        return  (int)$result['SUM(count)'];
+        $result =  mysqli_fetch_assoc($res);
+        $count = 0;
+        if((int)$result['SUM(count)'] !== null || (int)$result['SUM(count)'] != 0) {
+            $count = (int)$result['SUM(count)'];
+        } else {
+            $count = 0;
+        }
+
+        return  $count;
         
 }
 // function parser_wb($file) {

@@ -6,6 +6,7 @@ ini_set("memory_limit","512M");
 ini_set('max_execution_time', 1800);
 require '../vendor/autoload.php';
 require '../library/phpQuery.php';
+require '../config/settings.php';
 use \PhpOffice\PhpSpreadsheet\Shared\Date;
 
 
@@ -24,23 +25,6 @@ $sheet = $excel->getActiveSheet();
 $arr = [];
 
 
-$company="";
-
-if($_GET['company']) {
-    $company = $_GET['company'];
-}
-
-if($_POST['company']) {
-    $company = $_POST['company'];
-}
-
-$symbol = '';
-$company='juveros';
-if ($company == 'juveros') {
-    $symbol = '/';
-} else if($company == 'ipalievkb') {
-    $symbol = '_';
-}
 
 
 
@@ -100,7 +84,7 @@ $filename = 'sale_week.json';
 if(!empty($company)) {
     $filename = 'sale_week_'.$company.'.json';
 } else {
-    $filename = 'sale.json';
+    $filename = 'sale_week.json';
 }
 
 $f_hdl = fopen($filename, 'w');

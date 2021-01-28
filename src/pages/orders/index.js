@@ -13,6 +13,7 @@ export class Orders extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb ",
         orders: []
     };
   }
@@ -23,7 +24,8 @@ export class Orders extends React.Component {
     .get(url_ga_server + "order/order.php", {
       params: {
         type: "all_orders",
-        company: this.state.company
+        company: this.state.company,
+        client: this.state.client
       },
     })
     .then(function (response) {

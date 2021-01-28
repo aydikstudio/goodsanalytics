@@ -18,6 +18,7 @@ export class Setting extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb ",
       downloadsaleFile: null,
       statusDownloadsaleFile: false,
       statusUpdatesaleFile: false,
@@ -132,7 +133,7 @@ export class Setting extends React.Component {
     let ref = this;
     this.setState({ statusUpdatesaleFile: true });
     axios
-      .get(url_ga_server + "sale/sale.php", {
+      .get(url_ga_server + "sale/sale_"+this.state.client+"_"+this.state.company+".php", {
         'company': this.state.company
       })
       .then(function (res) {
@@ -187,7 +188,8 @@ export class Setting extends React.Component {
     axios
       .get(url_ga_server + "preorder/order.php", {
         params: {
-          company: this.state.company
+          company: this.state.company,
+          client: this.state.client
         }
       })
       .then(function (res) {
@@ -241,7 +243,8 @@ export class Setting extends React.Component {
     axios
       .get(url_ga_server + "waitinglist/waitinglist.php", {
         params: {
-          company: this.state.company
+          company: this.state.company,
+          client: this.state.client
         }
       })
       .then(function (res) {
@@ -296,7 +299,8 @@ export class Setting extends React.Component {
       axios
         .get(url_ga_server + "deficit/deficit.php", {
           params: {
-            company: this.state.company
+            company: this.state.company,
+            client: this.state.client
           }
         })
         .then(function (res) {
@@ -351,7 +355,8 @@ export class Setting extends React.Component {
       axios
         .get(url_ga_server + "turnover/turnover.php", {
           params: {
-            company: this.state.company
+            company: this.state.company,
+            client: this.state.client
           }
         })
         .then(function (res) {

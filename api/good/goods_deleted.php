@@ -1,8 +1,9 @@
 <?php 
-require_once '../config/config.php';
+require '../config/config.php';
+require '../config/settings.php';
 
 if(isset($_GET)) {
-        $query = "SELECT name FROM deleted_models";
+        $query = "SELECT `name` FROM `deleted_models` WHERE `client`='".$client."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         

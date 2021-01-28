@@ -21,6 +21,7 @@ export class Deleted_models extends React.Component {
     super(props);
     this.state = {
       company: localStorage.getItem('company') || "juveros",
+      client: localStorage.getItem('client') || "wb ",
       data_all_goods: [],
       goods: [],
       filteredList: [],
@@ -59,7 +60,7 @@ export class Deleted_models extends React.Component {
     let self = this;
 
     await axios
-      .get(url_ga_server + "sale/sale_"+this.state.company+".json")
+      .get(url_ga_server + "sale/sale_"+this.state.client+"_"+this.state.company+".json")
       .then(function (response) {
         let data = response.data;
         self.setState({
@@ -93,7 +94,11 @@ export class Deleted_models extends React.Component {
     let self = this;
 
     axios
-      .get(url_ga_server + "good/goods_deleted.php")
+      .get(url_ga_server + "good/goods_deleted.php", {
+        params: {
+          client: this.state.client
+        },
+      })
       .then(function (response) {
         let data = response.data;
         self.setState({
