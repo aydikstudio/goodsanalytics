@@ -19,6 +19,13 @@ if(isset($_GET)) {
     $type = $_GET['type'];
     
     if($type == "item_order_name") {
+        $query = "SELECT * FROM `order` WHERE `name`='".$_GET['name']."' and `company`='".$company."' and `client`='".$client."'";
+        $res = mysqli_query($mysqli, $query);
+        $data = array();
+
+        while ($result =  mysqli_fetch_assoc($res)) {
+           $data[] = $result;
+        }
         echo json_encode($data);
     }
 

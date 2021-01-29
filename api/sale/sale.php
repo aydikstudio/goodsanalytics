@@ -367,9 +367,9 @@ function group_cell_ozon($arr) {
        $ostatok = $postavleno-$prodano-$returned;
        
        if($count > 0) {
-        $wb_all_sizes[$item_id[0]][]= $item_id[1];
+        $wb_all_sizes[$item_id[0]][]= $item_id[1]." ";
     } else {
-        $wb_no_sizes[$item_id[0]][]= $item_id[1];
+        $wb_no_sizes[$item_id[0]][]= $item_id[1]." ";
     }
 
 

@@ -21,8 +21,7 @@ if(@$_POST['client']) {
 
 
 $symbol = '';
-$company = "ipalievkb";
-$client="ozon";
+
 
 if ($company == 'juveros' && $client == 'wb') {
     $symbol = '/';

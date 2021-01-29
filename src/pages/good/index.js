@@ -458,7 +458,7 @@ export class Good extends React.Component {
               <p>
                 Процент выкупа:{" "}
                 <b>
-                  {this.state.good["order"] == 0
+                  {this.state.client == 'ozon' || this.state.good["order"] == 0
                     ? 0
                     : Math.round(
                         (this.state.good["prodano"] /
@@ -471,7 +471,7 @@ export class Good extends React.Component {
               <p>
                 Процент продаваемости:{" "}
                 <b>
-                  {this.state.good["postavleno"] == 0  ? 0 : this.state.good["pp"]}%
+                  {this.state.good["pp"]}%
                 </b>
               </p>
               <p>
