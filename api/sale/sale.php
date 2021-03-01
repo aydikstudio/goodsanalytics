@@ -74,16 +74,10 @@ foreach ($sheet->getRowIterator() as $row) {
 
             else if ( $arr_index == 2){
                 $arr_item["category"] = $value;
-                $arr_index = 3;
-                
-            }
-
-            else if ( $arr_index == 3){
-                $arr_item["order"] = $value;
                 $arr_index = 0;
                 $ready = 1;
+                
             }
-
 
         }
         

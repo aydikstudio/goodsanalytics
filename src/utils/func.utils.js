@@ -37,7 +37,8 @@ export function getNameOManager(name, array) {
         item.category == "Ионизаторы серебряные" ||
         item.category == "Столовое серебро" ||
         item.category == "Ювелирные сувениры" ||
-        item.category == "Ионизаторы воды"
+        item.category == "Ионизаторы воды" || 
+        item.category == "Ювелирные броши"
     );
     return new_array;
   } else if (name == "semenova_elena") {

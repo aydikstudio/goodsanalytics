@@ -97,6 +97,7 @@ if(isset($_POST)) {
 
     if($type == "add_order") {
         $company1 = json_decode(file_get_contents('php://input'), true)['company'];
+        $client1 = json_decode(file_get_contents('php://input'), true)['client'];
         $order_id = rand(100, 50000);
         if(!isset($_SESSION['login'])) {
             $user_login = 'Не указано';
@@ -104,8 +105,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`, `date`, 'client')
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."', '".$date."', '".$client."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `comment`, `status_order`, `user_login`, `company`, `date`, `client`)
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$order_id."', '".$value[$i]['comment']."', 0, '".$user_login."', '".$company1."', '".$date."', '".$client1."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -135,6 +136,7 @@ if(isset($_POST)) {
 
         $number_order = json_decode(file_get_contents('php://input'), true)['number_order'];
         $company1 = json_decode(file_get_contents('php://input'), true)['company'];
+        $client1 = json_decode(file_get_contents('php://input'), true)['client'];
         $status_order = json_decode(file_get_contents('php://input'), true)['status_order'];
         $query = "DELETE FROM `order` WHERE `number_order`=".$number_order;
         $date =  date("d.m.Y");
@@ -146,8 +148,8 @@ if(isset($_POST)) {
             $user_login = $_SESSION['login'];
         }
         for ($i = 0; $i < count($value); $i++) {
-            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `accept_count`, `comment`, `status_order`, `user_login`, `company`, `date`, 'client')
-            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['accept_count']."', '".$value[$i]['comment']."', '".$status_order."', '".$user_login."', '".$company1."', '".$date."', '".$client."')";
+            $query_add = "INSERT INTO `order`(`name`, `order_count`, `number_order`, `accept_count`, `comment`, `status_order`, `user_login`, `company`, `date`, `client`)
+            VALUES ('".$value[$i]['name']."', '".$value[$i]['order_count']."', '".$number_order."', '".$value[$i]['accept_count']."', '".$value[$i]['comment']."', '".$status_order."', '".$user_login."', '".$company1."', '".$date."', '".$client1."')";
             mysqli_query($mysqli, $query_add);
         }
 
@@ -180,6 +182,7 @@ if(isset($_POST)) {
     if($type == "aprove_order") {
         $number_order = json_decode(file_get_contents('php://input'), true)['number_order'];
         $company1 = json_decode(file_get_contents('php://input'), true)['company'];
+        $client1 = json_decode(file_get_contents('php://input'), true)['client'];
         $date =  date("d.m.Y");
         $query = "UPDATE `order` SET `status_order`=1, `date`='".$date."' WHERE `number_order`=".$number_order;
         $res = mysqli_query($mysqli, $query);

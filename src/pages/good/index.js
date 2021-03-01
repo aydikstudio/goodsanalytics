@@ -441,7 +441,7 @@ export class Good extends React.Component {
                 Артикул МаркетПлейса:{" "}
                 <b>
                   <a
-                    href={this.state.company == "wb" ? `https://www.wildberries.ru/catalog/${this.state.good["wb_art"]}/detail.aspx` : `https://www.ozon.ru/context/detail/id/${this.state.good["wb_art"]}/`}
+                    href={this.state.client == "wb" ? `https://www.wildberries.ru/catalog/${this.state.good["wb_art"]}/detail.aspx` : `https://www.ozon.ru/context/detail/id/${this.state.good["wb_art"]}/`}
                     target="_blank"
                     className="link_a_red"
                   >
@@ -455,27 +455,12 @@ export class Good extends React.Component {
               <p>
                 Продано: <b>{this.state.good["prodano"]} шт.</b>
               </p>
-              <p>
-                Процент выкупа:{" "}
-                <b>
-                  {this.state.client == 'ozon' || this.state.good["order"] == 0
-                    ? 0
-                    : Math.round(
-                        (this.state.good["prodano"] /
-                          this.state.good["order"]) *
-                          100
-                      )}
-                  %
-                </b>
               </p>
               <p>
                 Процент продаваемости:{" "}
                 <b>
                   {this.state.good["pp"]}%
                 </b>
-              </p>
-              <p>
-                Заказано: <b>{this.state.good["order"]} шт.</b>
               </p>
             
               <p>

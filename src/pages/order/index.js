@@ -402,7 +402,6 @@ export class Order extends React.Component {
       await axios
         .post(url_ga_server + "order/order.php", options)
         .then(function (response) {
-          console.log(response.data);
           if (response.data == 1) {
             alert("Заказ на модерации.");
             localStorage.removeItem("goods_order_"+this.state.client+"_"+this.state.company);
