@@ -96,7 +96,6 @@ foreach ($sheet->getRowIterator() as $row) {
  
 $result = group_cell_wb($arr);
 
-
 $arr1 = [];
 
 foreach ($result as $row) {
@@ -178,6 +177,7 @@ else if ($client== 'ozon') {
     
      
     $result = group_cell_ozon($arr);
+   
     
     
     $arr1 = [];
@@ -215,7 +215,6 @@ function group_cell_wb($arr) {
         $id = $row['id'];
         $wb_art = $row['wb_art'];
         $category = $row['category'];
-        $order = $row['order'];
        $pp = 0;
        $postavleno = count_summ('shipment', $id);
        $prodano = count_summ('sale', $id);
@@ -240,9 +239,7 @@ function group_cell_wb($arr) {
        $doc = phpQuery::newDocument($file);
     
     $wb_retail = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.final-cost')->text()));
-    
     $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.params .pp:contains("Минимальный вес") span:eq(3)')->text())));
-    
     $wb_vstavka = json_fix_cyr($doc->find('.params .pp:contains("Вставка") span:eq(3)')->text());
         if(empty($wb_vstavka)) {
             $wb_vstavka = 'Нет вставки';
@@ -277,9 +274,9 @@ function group_cell_wb($arr) {
             $desc = "Нет описания";
         } 
 
-        $wb_all_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-size span')->text()))); 
+        $wb_all_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.exOH-')->text()))); 
         $wb_all_sizes = array_diff($wb_all_sizes, array(''));
-     if($wb_all_sizes[0] == 0) {
+     if(count($wb_all_sizes) == 0) {
         $wb_all_sizes = "У данного изделия нет размеров";
     }
 
@@ -304,7 +301,6 @@ function group_cell_wb($arr) {
                 'name' => trim($id),
                'postavleno' => @trim($postavleno),
                'prodano' => @trim($prodano),
-               'order' => trim($order),
                'pp' => $pp,
                'wb_art' => trim($wb_art),
                'category' => trim($category),

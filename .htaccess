@@ -1,8 +1,7 @@
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "*"
 DirectoryIndex index.html
 RewriteEngine On
-Header add Access-Control-Allow-Origin "*"
-Header add Access-Control-Allow-Headers "origin, x-requested-with, content-type"
-Header add Access-Control-Allow-Methods "PUT, GET, POST, DELETE, OPTIONS"
 RewriteCond %{HTTPS} off
 RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
@@ -18,3 +17,4 @@ php_flag track_errors on
 php_flag log_errors on
 php_flag mysql.trace_mode on
 RewriteRule . /index.html [L]
+

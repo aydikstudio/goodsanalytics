@@ -455,7 +455,6 @@ export class Good extends React.Component {
               <p>
                 Продано: <b>{this.state.good["prodano"]} шт.</b>
               </p>
-              </p>
               <p>
                 Процент продаваемости:{" "}
                 <b>
