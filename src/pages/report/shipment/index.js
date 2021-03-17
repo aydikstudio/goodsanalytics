@@ -46,7 +46,8 @@ export class Shipment_report extends React.Component {
       params: {
         date: value,
         type: "delete_shipment",
-        client: this.state.client
+        company: self.state.company,
+        client: self.state.client
       },
     })
     .then(function (response) {

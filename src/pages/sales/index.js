@@ -94,7 +94,8 @@ export class Sales extends React.Component {
     axios
       .get(url_ga_server + "good/goods_deleted.php", {
         params: {
-          client: this.state.client
+          client: this.state.client,
+          company: this.state.company
         },
       })
       .then(function (response) {

@@ -264,9 +264,10 @@ export class Good extends React.Component {
     
     axios
       .get(
-        url_ga_server + "good/check_good.php?check_name=" + this.state.good_name+"&client="+this.state.client
+        url_ga_server + "good/check_good.php?check_name=" + this.state.good_name+"&client="+this.state.client+"&company="+this.state.company
       )
       .then(function (response) {
+        console.log(response)
         self_img.setState({
           status_act: response.data,
         });
@@ -281,9 +282,10 @@ export class Good extends React.Component {
     const self = this;
     axios
       .get(
-        url_ga_server + "good/check_good.php?act_name=" + this.state.good_name+"&client="+this.state.client
+        url_ga_server + "good/check_good.php?act_name=1&name=" + this.state.good_name+"&client="+this.state.client+"&company="+this.state.company
       )
       .then(function (response) {
+        console.log(response);
         self.setState({
           status_act: response.data,
         });

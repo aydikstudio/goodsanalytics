@@ -3,4 +3,4 @@ const config = {
     url_ga_server: 'https://goodsanalytics.aydikstudio.ru/api/'
 }
 
-export default config;
+export default config; 

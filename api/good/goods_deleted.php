@@ -3,7 +3,7 @@ require '../config/config.php';
 require '../config/settings.php';
 
 if(isset($_GET)) {
-        $query = "SELECT `name` FROM `deleted_models` WHERE `client`='".$client."'";
+        $query = "SELECT `name` FROM `deleted_models` WHERE `client`='".$client."' and `company`='".$company."'";
         $res = mysqli_query($mysqli, $query);
         $data = array();
         

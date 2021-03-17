@@ -1,6 +1,4 @@
 <?php 
-$company='ipalievkb';
-$client='ozon';
 
 if(@$_GET['company']) {
     $company = $_GET['company'];
@@ -23,6 +21,7 @@ if(@$_POST['client']) {
 $symbol = '';
 $company = 'ipalievkb';
 $client = 'wb';
+
 
 if ($company == 'juveros' && $client == 'wb') {
     $symbol = '/';

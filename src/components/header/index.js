@@ -63,7 +63,7 @@ export class Header extends React.Component {
           <div className="top">
             <div id="logo">
               <a href="/" id="portfolio-link">
-                <img src="../images/logo.png" width="150" />
+                <img src="../../images/logo.png" width="150" />
               </a>
             </div>
 
