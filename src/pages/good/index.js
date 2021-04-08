@@ -259,7 +259,9 @@ export class Good extends React.Component {
       .then(function () {});
 
     } else {
-      this.state.img = self_img.state.good["url"];
+      self_img.setState({
+        img: self_img.state.good["url"]
+      });
     }
     
     axios

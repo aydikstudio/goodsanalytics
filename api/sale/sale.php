@@ -254,7 +254,7 @@ function group_cell_wb($arr) {
             $wb_metall = 'золото';
         }
     
-        $wb_no_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.j-sold-out span')->text()))); 
+        $wb_no_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.size-list .disabled span')->text()))); 
         $wb_no_sizes = array_diff($wb_no_sizes, array(''));
         if(count($wb_no_sizes) == 0) {
             $wb_no_sizes = "Все в наличии";
@@ -274,7 +274,7 @@ function group_cell_wb($arr) {
             $desc = "Нет описания";
         } 
 
-        $wb_all_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.exOH-')->text()))); 
+        $wb_all_sizes =  explode(", ", preg_replace("/[^x\d|*\.]/", ",",json_fix_cyr($doc->find('.size-list span')->text()))); 
         $wb_all_sizes = array_diff($wb_all_sizes, array(''));
      if(count($wb_all_sizes) == 0) {
         $wb_all_sizes = "У данного изделия нет размеров";
@@ -465,7 +465,7 @@ function json_fix_cyr($json_str) {
 
 
 function count_summ($table, $art) {
-        $mysqli = new mysqli('localhost', 'aydik', '12345678', 'goodsanalytics');
+         $mysqli = new mysqli('localhost', 'mysql', 'mysql', 'goodsanalytics');
         $query = "SELECT  SUM(count) FROM $table WHERE `name`='".$art."' and `company`='".$GLOBALS['company']."' and `client` = '".$GLOBALS['client']."'";
         $res = mysqli_query($mysqli, $query);
         $result =  mysqli_fetch_assoc($res);

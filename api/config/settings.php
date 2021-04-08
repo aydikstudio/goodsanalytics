@@ -20,7 +20,7 @@ if(@$_POST['client']) {
 
 $symbol = '';
 $company = 'ipalievkb';
-$client = 'wb';
+$client = 'ozon';
 
 
 if ($company == 'juveros' && $client == 'wb') {
