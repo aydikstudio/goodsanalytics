@@ -20,14 +20,15 @@ if(@$_POST['client']) {
 
 $symbol = '';
 $company = 'ipalievkb';
-$client = 'ozon';
+$client = 'wb';
 
 
 if ($company == 'juveros' && $client == 'wb') {
     $symbol = '/';
 } else if($company == 'ipalievkb' && $client == 'wb') {
     $symbol = '_';
-} else if($company == 'ipalievkb' && $client == 'ozon') {
+} 
+else if($company == 'ipalievkb' && $client == 'ozon') {
     $symbol = '/';
 }
 ?>

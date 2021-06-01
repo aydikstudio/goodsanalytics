@@ -69,9 +69,9 @@ if(isset($_GET)) {
 
     if($type == "update_status") {
         if ($_GET['status'] == 'delete') {
-            $query = "DELETE FROM `order` WHERE `number_order`=".$_GET['number_order']." and company='".$company."' and client='".$client."'";;
-            unlink('files/'.$_GET['number_order'].'.xls');
+            $query = "DELETE FROM `order` WHERE `number_order`=".$_GET['number_order']." and company='".$company."' and client='".$client."'";
             $res = mysqli_query($mysqli, $query);
+            unlink('files/'.$_GET['number_order'].'.xls');
             echo 0;
         } else {
             $query = "UPDATE `order` SET `status_order`='".$_GET['status']."' WHERE `number_order`=".$_GET['number_order'];

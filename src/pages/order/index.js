@@ -684,6 +684,7 @@ export class Order extends React.Component {
     })
     .then(function (response) {
       let data = response.data;
+      console.log(data);
       if(data == 1) {
         alert('Статус обновлен');
       }
