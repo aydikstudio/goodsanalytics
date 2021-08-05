@@ -19,7 +19,7 @@ if(@$_POST['client']) {
 
 
 $symbol = '';
-$company = 'ipalievkb';
+$company = 'juveros';
 $client = 'wb';
 
 

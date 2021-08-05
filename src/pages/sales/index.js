@@ -76,7 +76,7 @@ export class Sales extends React.Component {
           ],
           metalls: [
             ...data.reduce(
-              (acc, elem) => acc.add(elem["wb_metall"]),
+              (acc, elem) => acc.add(self.getMetall(elem["wb_metall"])),
               new Set()
             ),
           ],
@@ -87,6 +87,23 @@ export class Sales extends React.Component {
       });
 
       
+  }
+
+  getMetall(metall) {
+    let metall1 = metall;
+    if(typeof(metall) == "string") {
+
+    if(metall.includes('золото') || metall.includes('ЗОЛОТО')) {
+      metall1 =  'золото';
+    } else if(metall.includes('керамика')) {
+      metall1 = 'керамика';
+    } else if(metall.includes('серебро') || metall.includes('Серебро')) {
+      metall1 ='серебро';
+    }
+          
+  }
+
+    return metall1;
   }
 
   getDeletedModels() {
@@ -245,6 +262,7 @@ export class Sales extends React.Component {
     const value = target.value;
     const name = target.name;
 
+
     this.setState({
       [name]: value,
     });
@@ -314,7 +332,7 @@ export class Sales extends React.Component {
 
     if (this.state.metall !== "vse") {
       new_goods = new_goods.filter(
-        (item) => item["wb_metall"] == this.state.metall
+        (item) => this.getMetall(item["wb_metall"]) == this.state.metall
       );
     }
 
@@ -343,13 +361,13 @@ export class Sales extends React.Component {
       filteredList: new_goods.filter((item) => !item["date"]),
       itogo_postavleno: new_goods
         .map((item) => parseInt(item["postavleno"]))
-        .reduce((prev, curr) => prev + curr || 0),
+        .reduce((prev, curr) => prev + curr || 0) || [],
       itogo_prodano: new_goods
         .map((item) => parseInt(item["prodano"]))
-        .reduce((prev, curr) => prev + curr || 0),
+        .reduce((prev, curr) => prev + curr || 0)|| [],
       itogo_ostatok: new_goods
         .map((item) => parseInt(item["ostatok"]))
-        .reduce((prev, curr) => prev + curr || 0),
+        .reduce((prev, curr) => prev + curr || 0) || [],
     });
   }
 
@@ -585,7 +603,6 @@ export class Sales extends React.Component {
                     {item}
                   </MenuItem>
                 ))}
-                <MenuItem value="aliev_aydemir">Алиев Айдемир</MenuItem>
                 <MenuItem value="semenova_elena">Семенова Елена</MenuItem>
                 <MenuItem value="silaeva_natalia">Силаева Наталья</MenuItem>
               </Select>

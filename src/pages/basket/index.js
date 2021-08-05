@@ -56,6 +56,8 @@ export class Basket extends React.Component {
   }
 
   async componentDidMount() {
+    let self = this;
+
     let data = JSON.parse(localStorage.getItem("goods_basket_"+this.state.client+"_"+this.state.company)) || [];
     this.setState({
       filteredList: data.filter((item) => !item["date"]),
@@ -68,10 +70,28 @@ export class Basket extends React.Component {
         ...data.reduce((acc, elem) => acc.add(elem["wb_vstavka"]), new Set()),
       ],
       metalls: [
-        ...data.reduce((acc, elem) => acc.add(elem["wb_metall"]), new Set()),
+        ...data.reduce((acc, elem) => acc.add(self.getMetall(elem["wb_metall"])), new Set()),
       ],
     });
   }
+
+  getMetall(metall) {
+    let metall1 = metall;
+    if(typeof(metall) == "string") {
+
+      if(metall.includes('золото') || metall.includes('ЗОЛОТО')) {
+        metall1 =  'золото';
+      } else if(metall.includes('керамика')) {
+        metall1 = 'керамика';
+      } else if(metall.includes('серебро') || metall.includes('Серебро')) {
+        metall1 ='серебро';
+      }
+            
+    }
+
+    return metall1;
+  }
+
 
   checkIsNotGoods(event) {
     const target = event.target;
@@ -181,7 +201,7 @@ export class Basket extends React.Component {
 
     if (this.state.metall !== "vse") {
       new_goods = new_goods.filter(
-        (item) => item["wb_metall"] == this.state.metall
+        (item) => this.getMetall(item["wb_metall"]) == this.state.metall
       );
     }
 

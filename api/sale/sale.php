@@ -233,19 +233,25 @@ function group_cell_wb($arr) {
        $wb_reiting = '';
        $wb_retail = '';
        $weigth = '';
+       $proba = '';
        
             $url = 'https://www.wildberries.ru/catalog/'.$wb_art.'/detail.aspx';
             $file = file_get_contents($url);
        $doc = phpQuery::newDocument($file);
     
     $wb_retail = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.final-cost')->text()));
-    $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.params .pp:contains("Минимальный вес") span:eq(3)')->text())));
-    $wb_vstavka = json_fix_cyr($doc->find('.params .pp:contains("Вставка") span:eq(3)')->text());
+    $weigth = trim(str_replace("г", " ", json_fix_cyr($doc->find('.product-params__row:contains("Минимальный вес (г)") td')->text())));
+    $wb_vstavka = json_fix_cyr($doc->find('.product-params__row:contains("Вставка") td')->text());
         if(empty($wb_vstavka)) {
             $wb_vstavka = 'Нет вставки';
         }
+
+        $wb_proba = json_fix_cyr($doc->find('.product-params__row:contains("Проба") td')->text());
+        if(empty($wb_vstavka)) {
+            $wb_proba = 'Нет пробы';
+        }
     
-        $wb_metall = json_fix_cyr($doc->find('.params .pp:contains("Состав ювелирного изделия") span:eq(3)')->text());
+        $wb_metall = json_fix_cyr($doc->find('.product-params__row:contains("Состав ювелирного изделия") td')->text());
         if(empty($wb_metall)) {
             $wb_metall = 'Не указан металл';
         }
@@ -264,12 +270,12 @@ function group_cell_wb($arr) {
             $wb_no_sizes = $wb_no_sizes;
         }
     
-        $wb_reiting = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.stars-line-lg')->text()));
+        $wb_reiting = preg_replace("/[^x\d|*\.]/", "",json_fix_cyr($doc->find('.same-part-kt__rating')->text()));
         if(count($wb_reiting) == 0) {
             $wb_reiting = "Нет рейтинга";
         }
     
-        $desc =  json_fix_cyr($doc->find('.description-text p')->text());
+        $desc =  json_fix_cyr($doc->find('.collapsable__text')->text());
         if(count($desc) == 0) {
             $desc = "Нет описания";
         } 
@@ -313,7 +319,8 @@ function group_cell_wb($arr) {
                "wb_all_sizes" => $wb_all_sizes,
                "desc" => trim($desc),
                "ostatok" => trim($ostatok),
-               "wb_reiting" => trim($wb_reiting)
+               "wb_reiting" => trim($wb_reiting),
+               "proba" => trim($wb_proba)
             ];
     
             continue;

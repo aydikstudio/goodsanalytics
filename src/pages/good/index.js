@@ -483,7 +483,7 @@ export class Good extends React.Component {
                 Категория: <b>{this.state.good["category"]}</b>
               </p>
               <p>
-                Ответственный(ая): <b>{getNameOfCategory(this.state.good["category"])}</b>
+                Ответственный(ая): <b>{getNameOfCategory(this.state.good["category"], this.state.good["wb_metall"])}</b>
               </p>
               <p>
                 Розничная цена на WB: <b>{this.state.good["wb_retail"]} руб.</b>

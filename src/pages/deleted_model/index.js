@@ -79,7 +79,7 @@ export class Deleted_models extends React.Component {
           ],
           metalls: [
             ...data.reduce(
-              (acc, elem) => acc.add(elem["wb_metall"]),
+              (acc, elem) => acc.add(self.getMetall(elem["wb_metall"])),
               new Set()
             ),
           ],
@@ -88,6 +88,23 @@ export class Deleted_models extends React.Component {
       .catch(function (error) {
         console.log(error);
       });
+  }
+
+  getMetall(metall) {
+    let metall1 = metall;
+    if(typeof(metall) == "string") {
+
+      if(metall.includes('золото') || metall.includes('ЗОЛОТО')) {
+        metall1 =  'золото';
+      } else if(metall.includes('керамика')) {
+        metall1 = 'керамика';
+      } else if(metall.includes('серебро') || metall.includes('Серебро')) {
+        metall1 ='серебро';
+      }
+            
+    }
+
+    return metall1;
   }
 
   getOrderData() {
@@ -217,7 +234,7 @@ export class Deleted_models extends React.Component {
 
     if (this.state.metall !== "vse") {
       new_goods = new_goods.filter(
-        (item) => item["wb_metall"] == this.state.metall
+        (item) => this.getMetall(item["wb_metall"]) == this.state.metall
       );
     }
 
